@@ -6,10 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
-import java.awt.Desktop;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.net.URI;
 
 public class HelloController {
     @FXML

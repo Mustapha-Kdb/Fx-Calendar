@@ -7,8 +7,9 @@ module com.example.fxcalendar {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires java.desktop;
+    requires jfxtras.agenda;
+    requires java.net.http;
     requires org.mnode.ical4j.core;
-    requires jfxtras.icalendarfx;
 
     opens com.example.fxcalendar to javafx.fxml;
     exports com.example.fxcalendar;
