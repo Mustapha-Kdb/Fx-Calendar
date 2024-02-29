@@ -10,6 +10,7 @@ module com.example.fxcalendar {
     requires jfxtras.agenda;
     requires java.net.http;
     requires org.mnode.ical4j.core;
+    requires biweekly;
 
     opens com.example.fxcalendar to javafx.fxml;
     exports com.example.fxcalendar;
