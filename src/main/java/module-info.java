@@ -6,6 +6,8 @@ module com.example.fxcalendar {
     requires com.dlsc.formsfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
+    requires org.mnode.ical4j.core;
+    requires biweekly;
 
     opens com.example.fxcalendar to javafx.fxml;
     exports com.example.fxcalendar;
