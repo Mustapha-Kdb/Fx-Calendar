@@ -20,22 +20,30 @@ public class SearchAndFilterPanel {
 
         TextField searchField = new TextField();
         searchField.setPromptText("Rechercher un événement...");
+        Button searchButton = new Button("Rechercher");
+        searchButton.setOnAction(e -> {
+            String searchText = searchField.getText();
+            calendarView.filterEvents(searchText);
+        });
 
         ComboBox<String> filterComboBox = new ComboBox<>();
         filterComboBox.getItems().addAll("Tous", "Aujourd'hui", "Cette semaine", "Ce mois-ci");
         filterComboBox.setValue("Tous");
-
-        Button searchButton = new Button("Rechercher");
-        searchButton.setOnAction(e -> {
-            // Ici, ajoutez la logique pour effectuer la recherche et appliquer les filtres
-            // Cette logique interagira probablement avec calendarView pour mettre à jour l'affichage
+        filterComboBox.setOnAction(e -> {
+            String filterOption = filterComboBox.getValue();
+            calendarView.applyFilter(filterOption);
         });
+
+
+
 
         searchPanel.getChildren().addAll(searchField, filterComboBox, searchButton);
     }
 
+
     public VBox getPanel() {
         // Retourne le VBox contenant les éléments de recherche et de filtre
+
         return searchPanel;
     }
 }
