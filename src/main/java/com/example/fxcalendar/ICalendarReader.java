@@ -18,17 +18,23 @@ public class ICalendarReader {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            String icsData = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
 
-            List<ICalendar> calendars = Biweekly.parse(icsData).all();
-            for (ICalendar calendar : calendars) {
-                events.addAll(calendar.getEvents());
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                String icsData = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
+                List<ICalendar> calendars = Biweekly.parse(icsData).all();
+                for (ICalendar calendar : calendars) {
+                    events.addAll(calendar.getEvents());
+                }
+            } else {
+                System.err.println("HTTP error fetching data. Response code: " + responseCode);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         return events;
     }
+
 }
 
 
