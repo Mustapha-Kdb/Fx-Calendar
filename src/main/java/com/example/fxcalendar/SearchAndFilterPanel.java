@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox; // Assurez-vous d'utiliser javafx.scene.layout.
 public class SearchAndFilterPanel {
 
     private VBox searchPanel; // Variable d'instance pour stocker le conteneur
-    private CalendarView calendarView; // Référence à CalendarView pour interaction
+    private final CalendarView calendarView; // Référence à CalendarView pour interaction
 
     public SearchAndFilterPanel(CalendarView calendarView) {
         this.calendarView = calendarView; // Stockez la référence à CalendarView
@@ -27,11 +27,11 @@ public class SearchAndFilterPanel {
         });
 
         ComboBox<String> filterComboBox = new ComboBox<>();
-        filterComboBox.getItems().addAll("Tous", "Aujourd'hui", "Cette semaine", "Ce mois-ci");
-        filterComboBox.setValue("Tous");
+        filterComboBox.getItems().addAll( "Jour", "Semaine", "Mois");
+        filterComboBox.setValue("Mois");
         filterComboBox.setOnAction(e -> {
-            String filterOption = filterComboBox.getValue();
-            calendarView.applyFilter(filterOption);
+            CalendarView.filterOption = filterComboBox.getValue();
+            calendarView.applyFilter(CalendarView.filterOption);
         });
 
 

@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import jfxtras.scene.layout.HBox;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -21,19 +22,13 @@ public class CalendarApp extends Application {
         CalendarView calendarView = new CalendarView(events);
         SearchAndFilterPanel searchPanel = new SearchAndFilterPanel(calendarView);
         // ajouter les boutons de suivant et précédent pour changer le mois
-        Button previousMonthButton = new Button("<<");
-        previousMonthButton.setOnAction(e -> {
-            calendarView.updateCalendarView();
-        });
-        Button nextMonthButton = new Button(">>");
-        nextMonthButton.setOnAction(e -> {
-            calendarView.updateCalendarView();
-        });
-        searchPanel.getPanel().getChildren().addAll(previousMonthButton, nextMonthButton);
+        Button previousMonthButton = new Button("Précédent");
+        Button nextMonthButton = new Button("Suivant");
         calendarView.setupNavigationButtons(previousMonthButton, nextMonthButton);
-        // Pas besoin de l'appel à configureSearchPanel() ici, car il est appelé dans le constructeur de SearchAndFilterPanel
-
-        calendarView.displayEvents(events, YearMonth.now());
+        // ajouter les boutons horizontalement
+        HBox navigationButtonBox = new HBox(previousMonthButton, nextMonthButton);
+        searchPanel.getPanel().getChildren().add(navigationButtonBox);
+        calendarView.displayEventsParMois(events, YearMonth.now());
 
 
         ScrollPane scrollPane = new ScrollPane();
