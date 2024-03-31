@@ -1,5 +1,7 @@
-package com.example.fxcalendar;
+package com.example.fxcalendar.Controleur;
 
+import com.example.fxcalendar.Vue.CalendarView;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -10,7 +12,10 @@ public class SearchAndFilterPanel {
     private VBox searchPanel; // Variable d'instance pour stocker le conteneur
     private final CalendarView calendarView; // Référence à CalendarView pour interaction
 
-    public SearchAndFilterPanel(CalendarView calendarView) {
+    private final CalendarController calendarController;
+
+    public SearchAndFilterPanel(CalendarView calendarView, CalendarController calendarController) {
+        this.calendarController = calendarController;
         this.calendarView = calendarView; // Stockez la référence à CalendarView
         configureSearchPanel(); // Configurez le panneau de recherche lors de l'initialisation
     }
@@ -30,8 +35,8 @@ public class SearchAndFilterPanel {
         filterComboBox.getItems().addAll( "Jour", "Semaine", "Mois");
         filterComboBox.setValue("Mois");
         filterComboBox.setOnAction(e -> {
-            CalendarView.filterOption = filterComboBox.getValue();
-            calendarView.applyFilter(CalendarView.filterOption);
+            calendarController.setFilterOption(filterComboBox.getValue());
+            calendarController.applyFilter();
         });
 
 
@@ -45,5 +50,11 @@ public class SearchAndFilterPanel {
         // Retourne le VBox contenant les éléments de recherche et de filtre
 
         return searchPanel;
+    }
+
+    public void handleSearch(ActionEvent actionEvent) {
+    }
+
+    public void handleFilterChange(ActionEvent actionEvent) {
     }
 }

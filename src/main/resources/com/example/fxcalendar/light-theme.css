@@ -1,0 +1,20 @@
+/* light-theme.css */
+
+.root {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #000000;
+}
+
+#calendarGrid {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #cccccc;
+}
+
+#calendarGrid .day-cell {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #cccccc;
+}
+
+#calendarGrid .day-cell:hover {
+    -fx-background-color: #cccccc;
+}

@@ -14,4 +14,8 @@ module com.example.fxcalendar {
 
     opens com.example.fxcalendar to javafx.fxml;
     exports com.example.fxcalendar;
+    exports com.example.fxcalendar.Vue;
+    opens com.example.fxcalendar.Vue to javafx.fxml;
+    exports com.example.fxcalendar.Controleur;
+    opens com.example.fxcalendar.Controleur to javafx.fxml;
 }
