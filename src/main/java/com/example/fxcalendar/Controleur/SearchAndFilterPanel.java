@@ -1,5 +1,7 @@
-package com.example.fxcalendar;
+package com.example.fxcalendar.Controleur;
 
+import com.example.fxcalendar.Vue.CalendarView;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -8,9 +10,12 @@ import javafx.scene.layout.VBox; // Assurez-vous d'utiliser javafx.scene.layout.
 public class SearchAndFilterPanel {
 
     private VBox searchPanel; // Variable d'instance pour stocker le conteneur
-    private CalendarView calendarView; // Référence à CalendarView pour interaction
+    private final CalendarView calendarView; // Référence à CalendarView pour interaction
 
-    public SearchAndFilterPanel(CalendarView calendarView) {
+    private final CalendarController calendarController;
+
+    public SearchAndFilterPanel(CalendarView calendarView, CalendarController calendarController) {
+        this.calendarController = calendarController;
         this.calendarView = calendarView; // Stockez la référence à CalendarView
         configureSearchPanel(); // Configurez le panneau de recherche lors de l'initialisation
     }
@@ -27,11 +32,11 @@ public class SearchAndFilterPanel {
         });
 
         ComboBox<String> filterComboBox = new ComboBox<>();
-        filterComboBox.getItems().addAll("Tous", "Aujourd'hui", "Cette semaine", "Ce mois-ci");
-        filterComboBox.setValue("Tous");
+        filterComboBox.getItems().addAll( "Jour", "Semaine", "Mois");
+        filterComboBox.setValue("Mois");
         filterComboBox.setOnAction(e -> {
-            String filterOption = filterComboBox.getValue();
-            calendarView.applyFilter(filterOption);
+            calendarController.setFilterOption(filterComboBox.getValue());
+            calendarController.applyFilter();
         });
 
 
@@ -45,5 +50,11 @@ public class SearchAndFilterPanel {
         // Retourne le VBox contenant les éléments de recherche et de filtre
 
         return searchPanel;
+    }
+
+    public void handleSearch(ActionEvent actionEvent) {
+    }
+
+    public void handleFilterChange(ActionEvent actionEvent) {
     }
 }

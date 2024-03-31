@@ -1,0 +1,20 @@
+/* dark-theme.css */
+
+.root {
+    -fx-background-color: #121212;
+    -fx-text-fill: #ffffff;
+}
+
+#calendarGrid {
+    -fx-background-color: #212121;
+    -fx-border-color: #424242;
+}
+
+#calendarGrid .day-cell {
+    -fx-background-color: #212121;
+    -fx-border-color: #424242;
+}
+
+#calendarGrid .day-cell:hover {
+    -fx-background-color: #424242;
+}
