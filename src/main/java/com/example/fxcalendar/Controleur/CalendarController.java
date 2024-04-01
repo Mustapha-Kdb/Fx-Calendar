@@ -50,6 +50,38 @@ public class CalendarController {
 
     private static String filterOption = "Mois";
 
+    public ChoiceBox<String> getViewChoiceBox() {
+        return viewChoiceBox;
+    }
+
+    public void setViewChoiceBox(String mode) {
+        this.viewChoiceBox.setValue(mode);
+    }
+
+    public YearMonth getCurrentMonth() {
+        return currentMonth;
+    }
+
+    public void setCurrentMonth(YearMonth currentMonth) {
+        this.currentMonth = currentMonth;
+    }
+
+    public LocalDate getCurrentSemaine() {
+        return currentSemaine;
+    }
+
+    public void setCurrentSemaine(LocalDate currentSemaine) {
+        this.currentSemaine = currentSemaine;
+    }
+
+    public LocalDate getCurrentJour() {
+        return currentJour;
+    }
+
+    public void setCurrentJour(LocalDate currentJour) {
+        this.currentJour = currentJour;
+    }
+
     public void setCalendarApp(CalendarApp calendarApp) {
         this.calendarApp = calendarApp;
     }
@@ -163,15 +195,12 @@ public class CalendarController {
     public void applyFilter() {
         switch (getFilterOption()) {
             case "Jour" -> {
-                currentJour = LocalDate.now();
                 calendarView.filterEventsDay(currentJour);
             }
             case "Semaine" -> {
-                currentSemaine = LocalDate.now().with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
                 calendarView.displayEventsParSemaine(calendarView.getEvents(), currentSemaine);
             }
             case "Mois" -> {
-                YearMonth currentMonth = YearMonth.now();
                 calendarView.displayEventsParMois(calendarView.getEvents(), currentMonth);
             }
             default -> calendarView.displayAllEvents();
