@@ -1,5 +1,6 @@
 package com.example.fxcalendar;
 
+import com.example.fxcalendar.Controleur.LoginController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -16,34 +17,46 @@ public class CalendarApp extends Application {
 
     private boolean isDarkTheme = false;
 
+    private Stage primaryStage;
     private Scene scene;
+
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        loadLoginView();
+    }
+
+    public void loadLoginView() {
         try {
-            // Charge le fichier FXML de l'interface utilisateur
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginView.fxml"));
+            Parent root = loader.load();
+            LoginController controller = loader.getController();
+            controller.setApp(this);
+
+            scene = new Scene(root);
+            setTheme(scene, LIGHT_THEME);
+
+            primaryStage.setTitle("Login");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadCalendarView() {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
             Parent root = loader.load();
 
-
-
-            // Configure le titre de la fenêtre principale
-            primaryStage.setTitle("University Calendar");
-
-            // Obtient les dimensions de l'écran
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            scene.setRoot(root);
+            scene.getWindow().setWidth(screenBounds.getWidth());
+            scene.getWindow().setHeight(screenBounds.getHeight());
 
-            // Définit la taille de la scène pour qu'elle s'adapte aux dimensions de l'écran
-            scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
-            // Par défaut, charger le thème clair
-            setTheme(scene, LIGHT_THEME);
+            setTheme(scene, isDarkTheme ? DARK_THEME : LIGHT_THEME);
 
-            // Définit la scène sur la fenêtre principale
-            primaryStage.setScene(scene);
-            // Configure le titre de la fenêtre principale
             primaryStage.setTitle("University Calendar");
-
-            // Affiche la fenêtre principale
-            primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }

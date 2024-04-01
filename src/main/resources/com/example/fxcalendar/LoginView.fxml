@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<VBox fx:id="loginBox" alignment="CENTER" spacing="20.0" stylesheets="@login-style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fxcalendar.Controleur.LoginController">
+    <ImageView fitHeight="150" preserveRatio="true">
+        <image>
+            <Image url="@/Avignon.png"/>
+        </image>
+    </ImageView>
+    <VBox spacing="10" alignment="CENTER">
+        <TextField fx:id="usernameField" promptText="Nom d'utilisateur" />
+        <PasswordField fx:id="passwordField" promptText="Mot de passe" />
+    </VBox>
+    <Button fx:id="loginButton" text="Connexion" onAction="#handleLogin" />
+    <Label fx:id="loginMessage" />
+</VBox>
