@@ -88,12 +88,16 @@ public class CalendarController {
     public void initialize() {
         // Initialiser la liste des suggestions de formations
         ObservableList<String> formations = FXCollections.observableArrayList(
-                "M1 IA", "M1 ILSEN", "M1 SICOM"
+                "--- par formation ---" , "M1 IA", "M1 ILSEN", "M1 SICOM",
+                " --- par enseignement ---", "approches neuronales", "prototypage", "test",
+                " --- par salle ---", "STAT 1", "S2", "S3"
         );
         FormationSwitch.setItems(formations);
+        FormationSwitch.setValue("--- par formation ---");
 
         // Définir un écouteur pour la sélection d'une formation dans la ComboBox
         FormationSwitch.setOnAction(event -> handleFormationSelection());
+
 
         updateDateText();
 
@@ -112,12 +116,21 @@ public class CalendarController {
     private void handleFormationSelection() {
         // Mettre à jour la valeur de textformation avec la formation sélectionnée
         textformation = FormationSwitch.getValue();
-        updateDateText();
-        ICalendarReader calendarReader = new ICalendarReader();
-        List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
-        calendarView.setEvents(events);
-        updateCalendarView();
+
+        // Vérifier si une formation valide est sélectionnée
+        if (!textformation.equals("--- par formation ---") &&
+                !textformation.equals("--- par enseignement ---") &&
+                !textformation.equals("--- par salle ---")) {
+
+            updateDateText();
+
+            ICalendarReader calendarReader = new ICalendarReader();
+            List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
+            calendarView.setEvents(events);
+            updateCalendarView();
+        }
     }
+
 
     private void updateDateText() {
         // Mettre à jour le texte avec la valeur de currentJour
