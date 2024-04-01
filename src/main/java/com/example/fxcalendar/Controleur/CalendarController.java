@@ -90,7 +90,8 @@ public class CalendarController {
         ObservableList<String> formations = FXCollections.observableArrayList(
                 "--- par formation ---" , "M1 IA", "M1 ILSEN", "M1 SICOM",
                 " --- par enseignement ---", "approches neuronales", "prototypage", "test",
-                " --- par salle ---", "STAT 1", "S2", "S3"
+                " --- par salle ---", "STAT 1", "S2", "S3" ,
+                "--par prof--","NOE"
         );
         FormationSwitch.setItems(formations);
         FormationSwitch.setValue("--- par formation ---");
