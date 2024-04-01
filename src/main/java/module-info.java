@@ -11,7 +11,9 @@ module com.example.fxcalendar {
     requires java.net.http;
     requires org.mnode.ical4j.core;
     requires biweekly;
+    requires com.fasterxml.jackson.databind;
 
+    exports com.example.fxcalendar.Modele to com.fasterxml.jackson.databind;
     opens com.example.fxcalendar to javafx.fxml;
     exports com.example.fxcalendar;
     exports com.example.fxcalendar.Vue;
@@ -19,3 +21,5 @@ module com.example.fxcalendar {
     exports com.example.fxcalendar.Controleur;
     opens com.example.fxcalendar.Controleur to javafx.fxml;
 }
+
+

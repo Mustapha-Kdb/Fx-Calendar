@@ -1,0 +1,30 @@
+#loginBox {
+    -fx-padding: 30px;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 30, 0, 0, 0);
+}
+
+#usernameField, #passwordField {
+    -fx-pref-width: 300px;
+    -fx-pref-height: 40px;
+    -fx-font-size: 14px;
+    -fx-font-family: "Arial";
+}
+
+#loginButton {
+    -fx-pref-width: 300px;
+    -fx-pref-height: 40px;
+    -fx-background-color: #E07C24;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+#loginButton:hover {
+    -fx-background-color: #cf6d1f;
+}
+
+#loginMessage {
+    -fx-text-fill: red;
+}
