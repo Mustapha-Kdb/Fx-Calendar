@@ -43,6 +43,9 @@ public class ICalendarReader {
             case "S3":
                 urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/salle/def50200f43d90345455e2128e171ae049aae3332ff10b1488d40baa304b9c8c36ec905ff05e779ebb3e1099c65127a37f62802d4cebc805d6be6b1d4a762f74ba76e6e0bfb8fabda9802419f5da3731ab78fe206da8bafec88153";
                 break;
+            case "NOE":
+                urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/enseignant/def5020014cf744f63f7181931e243c5139c5d8427de488f3da5b30b52905edfe9de85e8da750e291f852c095f6fd05f93658cbbf3260bf1308a84c444accdb9ab8f67de5f5758e0b59200e3c78068a677fc5055644c4635";
+                break;
 
             default:
                 break;
