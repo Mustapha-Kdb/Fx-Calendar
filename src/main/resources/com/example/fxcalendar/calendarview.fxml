@@ -11,36 +11,38 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="CENTER" spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@dark-theme.css" fx:controller="com.example.fxcalendar.Controleur.CalendarController">
+
+<VBox fx:id="mainContainer" alignment="CENTER" spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@light-theme.css" fx:controller="com.example.fxcalendar.Controleur.CalendarController">
 
     <!-- Boutons de navigation entre les mois -->
-    <HBox alignment="CENTER" spacing="10">
-      <ToggleButton blendMode="DARKEN" mnemonicParsing="false" onAction="#toggleTheme" text="Dark Mode" textAlignment="CENTER" />
+    <HBox fx:id="headerContainer" alignment="CENTER" spacing="10">
+      <ToggleButton fx:id="toggleThemeButton" blendMode="DARKEN" mnemonicParsing="false" onAction="#toggleTheme" text="Dark Mode" textAlignment="CENTER" />
         <Button fx:id="previousButton" onAction="#handlePreviousButton" text="Précédent" />
-        <Button onAction="#handleAjourdhuiButton" text="Aujoud'hui" />
+        <Button fx:id="todayButton" onAction="#handleAjourdhuiButton" text="Aujoud'hui" />
         <Button fx:id="nextButton" onAction="#handleNextButton" text="Suivant" />
       <ChoiceBox fx:id="FormationSwitch" />
     </HBox>
 
 
     <!-- Menu pour changer la vue (jour, semaine, mois) -->
-    <HBox alignment="CENTER" spacing="10">
+    <HBox fx:id="viewContainer" alignment="CENTER" spacing="20">
         <ChoiceBox fx:id="viewChoiceBox" onAction="#handleChangeView" />
     </HBox>
     <!-- Texte pour afficher la formation -->
     <Text fx:id="formationText" />
 
-    <ScrollPane prefHeight="800" prefWidth="1200" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <ScrollPane fx:id="calendarScrollPane" prefHeight="800" prefWidth="1200" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+
     <!-- Grille pour afficher les jours du calendrier -->
         <content>
-            <GridPane fx:id="calendarGrid" hgap="10" vgap="10">
+            <GridPane fx:id="calendarGrid" hgap="10" vgap="10" alignment="CENTER">
                 <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" /> <!-- Time Column -->
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" /> <!-- Monday -->
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" /> <!-- Tuesday -->
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" /> <!-- Wednesday -->
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" /> <!-- Thursday -->
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" /> <!-- Friday -->
+                    <ColumnConstraints percentWidth="10" hgrow="ALWAYS" /> <!-- Time Column -->
+                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Monday -->
+                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Tuesday -->
+                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Wednesday -->
+                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Thursday -->
+                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Friday -->
                 </columnConstraints>
                 <rowConstraints>
                     <!-- Define row constraints for 24 rows, representing half-hour slots from 08:00 to 19:00 -->
@@ -74,28 +76,13 @@
         </content>
     </ScrollPane>
 
-    <HBox alignment="BASELINE_RIGHT">
-    <!-- Autres éléments de l'interface utilisateur peuvent être ajoutés ici -->
-    <HBox alignment="CENTER" spacing="10">
-        <Button onAction="#handleAddEventButton" text="Ajouter un événement" />
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Button onAction="#handleSearchEventButton" text="Rechercher un événement" />
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Button onAction="#handlePlanningButton" text="Voir Emploi du Temps" />
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Button onAction="#handleLogoutButton" text="Se déconnecter" />
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Button onAction="#handleExitButton" text="Quitter" />
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Button onAction="#handleHelpButton" text="Aide" />
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Button onAction="#handleAboutButton" text="À propos" />
-    </HBox>
+    <HBox fx:id="footerContainer" alignment="CENTER" spacing="20">
+        <Button fx:id="addEventButton" text="Ajouter un événement" />
+        <Button fx:id="searchEventButton" text="Rechercher un événement" />
+        <Button fx:id="planningButton" text="Voir Emploi du Temps" />
+        <Button fx:id="logoutButton" text="Se déconnecter" />
+        <Button fx:id="exitButton" text="Quitter" />
+        <Button fx:id="helpButton" text="Aide" />
+        <Button fx:id="aboutButton" text="À propos" />
     </HBox>
 </VBox>

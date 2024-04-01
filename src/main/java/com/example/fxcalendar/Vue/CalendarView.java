@@ -2,16 +2,19 @@ package com.example.fxcalendar.Vue;
 
 import biweekly.component.VEvent;
 import com.example.fxcalendar.Controleur.CalendarController;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.RowConstraints;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,6 +22,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -67,7 +71,13 @@ public class CalendarView {
         for (VEvent event : events) {
             LocalDate eventDate = event.getDateStart().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             int dayOfMonth = eventDate.getDayOfMonth();
-            sessionCountPerDay[dayOfMonth - 1]++;
+            if (dayOfMonth >= 1 && dayOfMonth <= totalDaysInMonth) {
+                sessionCountPerDay[dayOfMonth - 1]++;
+            } else {
+                // Gérer le cas où dayOfMonth est en dehors de la plage valide
+                System.err.println("Warning: dayOfMonth is out of range: " + dayOfMonth);
+            }
+
         }
 
         // Ajouter un texte pour chaque jour dans le calendrier avec le nombre de séances
@@ -105,7 +115,12 @@ public class CalendarView {
                 // Afficher la semaine ou le jour cliqué
                 // par exemple, en mettant à jour l'affichage avec les séances pour cette semaine ou ce jour
                 LocalDate clickedDate = LocalDate.of(Month.getYear(), Month.getMonthValue(), finalI1 + 1);
-                displayEventsParJour(events, clickedDate);
+                calendarController.setFilterOption("Semaine");
+                calendarController.setViewChoiceBox("Semaine");
+                // Mettre à jour la semaine actuelle pour afficher la semaine du jour cliqué
+                LocalDate currentSemaine = clickedDate.minusDays(clickedDate.getDayOfWeek().getValue() - 1);
+                calendarController.setCurrentSemaine(currentSemaine);
+                calendarController.applyFilter();
             });
 
             // Ajouter le VBox à la grille (GridPane) à la position appropriée
@@ -144,6 +159,8 @@ public class CalendarView {
     public void displayEventsParSemaine(List<biweekly.component.VEvent> events, LocalDate semaine) {
         // Clear the GridPane before adding new events
         calendarGrid.getChildren().clear();
+        calendarGrid.getColumnConstraints().clear(); // Clear existing column constraints
+        calendarGrid.getRowConstraints().clear(); // Clear existing row constraints
 
         // Add headers for days at the top row, column 1-5
         for (int i = 0; i < 5; i++) { // Monday to Friday
@@ -151,15 +168,32 @@ public class CalendarView {
             String dayLabel = dayDate.format(DateTimeFormatter.ofPattern("EEE dd/MM", Locale.FRANCE));
             Text dayText = new Text(dayLabel);
             dayText.setFont(Font.font("Arial", FontWeight.BOLD, 14)); // Ajuster la taille de la police
-            calendarGrid.add(dayText, i + 1, 0);
+            VBox dayHeader = new VBox(dayText);
+            dayHeader.setAlignment(Pos.CENTER);
+            calendarGrid.add(dayHeader, i + 1, 0);
+
+
         }
 
+        // Calculate the total number of half-hour slots in a day
+        int totalHalfHourSlots = (19 - 8) * 2 + 2;
 
         // Add time labels in the first column, rows 1-24
         for (int i = 8; i <= 19; i++) {
             // For each hour and half-hour slot
-            calendarGrid.add(new Text(String.format("%02d:00", i)), 0, (i - 8) * 2 + 1);
-            calendarGrid.add(new Text(String.format("%02d:30", i)), 0, (i - 8) * 2 + 2);
+            Text hourLabel1 = new Text(String.format("%02d:00", i));
+            Text hourLabel2 = new Text(String.format("%02d:30", i));
+            VBox hourLabels1 = new VBox(hourLabel1);
+            VBox hourLabels2 = new VBox(hourLabel2);
+            hourLabels1.setAlignment(Pos.CENTER);
+            hourLabels2.setAlignment(Pos.CENTER);
+            calendarGrid.add(hourLabels1, 0, (i - 8) * 2 + 1);
+            calendarGrid.add(hourLabels2, 0, (i - 8) * 2 + 2);
+
+
+
+
+
         }
         // Ensure that days are fixed and visible, even if there are no events
         for (int i = 0; i < 5; i++) { // Monday to Friday
@@ -167,6 +201,16 @@ public class CalendarView {
             columnConstraints.setPercentWidth(100.0 / 5); // Répartir la largeur de la colonne uniformément
             calendarGrid.getColumnConstraints().add(columnConstraints);
         }
+        // Ensure that hours are fixed and visible, even if there are no events
+        for (int i = 0; i < 24; i++) { //
+            RowConstraints rowConstraints = new RowConstraints();
+            rowConstraints.setPercentHeight(100.0 / 24); // Répartir la largeur de la colonne uniformément
+            calendarGrid.getRowConstraints().add(rowConstraints);
+        }
+
+        // Sort events by start time
+        events.sort(Comparator.comparing(event -> event.getDateStart().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
+
         // Add events to the appropriate time slots for each day
         for (VEvent event : events) {
             LocalDate eventDate = event.getDateStart().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -175,14 +219,15 @@ public class CalendarView {
             if (eventDate.isAfter(semaine.minusDays(1)) && eventDate.isBefore(semaine.plusDays(5))) {
                 int columnIndex = (int) ChronoUnit.DAYS.between(semaine, eventDate) + 1; // Calculate the column index for the event
                 // Calculate the starting row based on the start time
-                int startHour = Math.max(startTime.getHour(), 8); // Start at 8 AM if event starts before 8 AM
-                int startRowIndex = (startHour - 8) * 2 + (startTime.getMinute() >= 30 ? 1 : 0);
+                // Start at 8:30 AM if event starts before 8:30 AM
+                int startHour = Math.max(startTime.getHour(), 8);
+                int startRowIndex = (startHour - 8) * 2 + (startTime.getMinute() >= 30 ? 1 : 0)+1;
                 // Ensure startRowIndex is non-negative
-                startRowIndex = Math.max(startRowIndex, 0);
+                startRowIndex = Math.max(startRowIndex, 1);
 
                 // Calculate the ending row based on the end time
                 int endHour = Math.min(endTime.getHour(), 19); // End at 7 PM if event ends after 7 PM
-                int endRowIndex = (endHour - 8) * 2 + (endTime.getMinute() >= 30 ? 1 : 0);
+                int endRowIndex = (endHour - 8) * 2 + (endTime.getMinute() == 30 ? 1 : 0);
                 // Ensure endRowIndex is within bounds
                 endRowIndex = Math.min(endRowIndex, 23); // Assuming grid has 24 half-hour rows
 
@@ -191,7 +236,9 @@ public class CalendarView {
 
                 // Ensure durationInHalfHours is positive
                 durationInHalfHours = Math.max(durationInHalfHours, 1); // At least one half-hour slot
-
+                if (durationInHalfHours == 1) {
+                    durationInHalfHours = totalHalfHourSlots;
+                }
                 String summary = event.getSummary() != null ? event.getSummary().getValue() : "No summary provided";
                 String description = event.getDescription() != null ? event.getDescription().getValue() : "No description provided";
                 // Create the event box and style it
@@ -200,13 +247,14 @@ public class CalendarView {
                 eventText.setWrappingWidth(200); // Wrap text within the specified width
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
                 VBox eventBox = new VBox(eventText);
-                eventBox.setStyle("-fx-background-color: #ADD8E6; -fx-border-color: #000000;");
-                eventBox.setPrefWidth(200);
-                // Span the event across the correct number of rows from startRowIndex to endRowIndex
+                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000;");
+
                 GridPane.setRowIndex(eventBox, startRowIndex);
                 GridPane.setRowSpan(eventBox, durationInHalfHours);
+                // Add a small gap between events
+                VBox.setMargin(eventBox, new Insets(2)); // Adjust as needed
 
-        calendarGrid.add(eventBox, columnIndex, startRowIndex); // Add the event box to the grid
+                calendarGrid.add(eventBox, columnIndex, startRowIndex); // Add the event box to the grid
             }
         }
     }
@@ -261,7 +309,7 @@ public class CalendarView {
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
                 // Create the event box and style it
                 VBox eventBox = new VBox(eventText);
-                eventBox.setStyle("-fx-background-color: #ADD8E6; -fx-border-color: #000000;");
+                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000;");
                 eventBox.setPrefWidth(200);
                 eventBox.setAlignment(Pos.CENTER); // Center align event details
                 // Span the event across the correct number of rows
