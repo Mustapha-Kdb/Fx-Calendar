@@ -162,8 +162,7 @@ public class CalendarView {
     public void displayEventsParSemaine(List<biweekly.component.VEvent> events, LocalDate semaine) {
         // Clear the GridPane before adding new events
         calendarGrid.getChildren().clear();
-        //calendarGrid.getColumnConstraints().clear(); // Clear existing column constraints
-//        calendarGrid.getRowConstraints().clear(); // Clear existing row constraints
+
         // Add headers for days at the top row, column 1-5
         for (int i = 0; i < 5; i++) { // Monday to Friday
             LocalDate dayDate = semaine.plusDays(i);

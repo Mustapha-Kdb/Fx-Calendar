@@ -43,7 +43,7 @@ public class CalendarController {
     private LocalDate currentJour = LocalDate.now();
 
 
-    private String textformation = "M1 ILSEN";
+    private String textformation;
 
     @FXML
     private Text formationText;
@@ -80,6 +80,14 @@ public class CalendarController {
         return currentJour;
     }
 
+    public String getTextformation() {
+        return textformation;
+    }
+
+    public void setTextformation(String textformation) {
+        this.textformation = textformation;
+    }
+
     public void setCurrentJour(LocalDate currentJour) {
         this.currentJour = currentJour;
     }
@@ -87,7 +95,10 @@ public class CalendarController {
     public void setCalendarApp(CalendarApp calendarApp) {
         this.calendarApp = calendarApp;
     }
-        public void initialize() {
+        public void initialize(String formation) {
+            textformation = formation;
+
+
             // Initialiser la liste des suggestions de formations
             ObservableList<String> formations = FXCollections.observableArrayList(
                     "--par formation--" , "M1 IA", "M1 ILSEN", "M1 SICOM",
@@ -112,19 +123,22 @@ public class CalendarController {
             FormationSwitch.setOnAction(event -> handleFormationSelection(filtresIA, filtresSICOM, filtresILSEN));
             FormationFilter.setOnAction(event -> handleFormationFiltreSelection());
 
-            updateDateText();
 
-            ICalendarReader calendarReader = new ICalendarReader();
+        updateDateText();
 
-            List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
-            calendarView = new CalendarView(events);
-            calendarView.setCalendarController(this);
-            calendarGrid.getChildren().add(calendarView.getCalendarGrid());
-            viewChoiceBox.getItems().addAll("Jour", "Semaine", "Mois");
-            viewChoiceBox.setValue("Semaine");
-            setupNavigationButtons();
-            updateCalendarView();
-        }
+        ICalendarReader calendarReader = new ICalendarReader();
+        List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
+        System.out.println(textformation);
+        calendarView = new CalendarView(events);
+        calendarView.setCalendarController(this);
+        calendarGrid.getChildren().add(calendarView.getCalendarGrid());
+        viewChoiceBox.getItems().addAll("Jour", "Semaine", "Mois");
+        viewChoiceBox.setValue("Semaine");
+        setupNavigationButtons();
+        updateCalendarView();
+    }
+
+
 
         private void handleFormationFiltreSelection() {
             // Mettre à jour la valeur de textformation avec la formation sélectionnée
@@ -155,8 +169,6 @@ public class CalendarController {
             ) {
                 FormationFilter.setDisable(!textformation.equals("M1 IA") && !textformation.equals("M1 ILSEN") && !textformation.equals("M1 SICOM"));
                 updateDateText();
-//                FormationFilter.setItems(textformation.equals("M1 IA") ? filtresIA : textformation.equals("M1 SICOM") ? filtresSICOM : textformation.equals("M1 ILSEN") ? filtresILSEN : filtresILSEN);
-//                FormationFilter.setValue("--par matière--");
 
                 ICalendarReader calendarReader = new ICalendarReader();
                 System.out.println("Formation : " + textformation);
@@ -301,5 +313,6 @@ public class CalendarController {
             calendarApp.toggleTheme();
         }
     }
+
 
 }
