@@ -56,3 +56,10 @@ ToggleButton:selected, Button:hover {
     -fx-padding: 1px; /* Ajustez selon le besoin */
 
 }
+.event-box {
+    -fx-background-color: #ee974b;
+    -fx-border-color: #000000;
+    -fx-border-width: 0.3px;
+    -fx-background-radius: 7px;
+    -fx-border-radius: 7px;"
+}

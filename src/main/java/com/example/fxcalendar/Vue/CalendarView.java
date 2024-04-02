@@ -273,10 +273,10 @@ public class CalendarView {
                 if (durationInHalfHours == 1) {
                     durationInHalfHours = totalHalfHourSlots;
                 }
-                String summary = event.getSummary() != null ? event.getSummary().getValue() : "No summary provided";
+                // String summary = event.getSummary() != null ? event.getSummary().getValue() : "No summary provided";
                 String description = event.getDescription() != null ? event.getDescription().getValue() : "No description provided";
                 // Create the event box and style it
-                String displayText = String.format("%s\n%s", summary, description);
+                String displayText = String.format("%s", description);
                 Text eventText = new Text(displayText);
                 eventText.setWrappingWidth(200); // Wrap text within the specified width
 
@@ -303,7 +303,7 @@ public class CalendarView {
     public void displayEventsParJour(List<biweekly.component.VEvent> events, LocalDate jour) {
         // Clear the GridPane before adding new events
         calendarGrid.getChildren().clear();
-        calendarGrid.getColumnConstraints().clear(); // Clear existing column constraints
+//        calendarGrid.getColumnConstraints().clear(); // Clear existing column constraints
 
         // Add headers for day at the top row, column 1
         String dayLabel = jour.format(DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy", Locale.FRANCE));
@@ -366,18 +366,36 @@ public class CalendarView {
             LocalDate eventDate = event.getDateStart().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             LocalTime startTime = event.getDateStart().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
             LocalTime endTime = event.getDateEnd().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
-
-            if (eventDate.equals(jour)) {
+            if (eventDate.isAfter(jour.minusDays(1)) && eventDate.isBefore(jour.plusDays(5))) {
+                int columnIndex = (int) ChronoUnit.DAYS.between(jour, eventDate) + 1; // Calculate the column index for the event
                 // Calculate the starting row based on the start time
-                int startRowIndex = Math.max((startTime.getHour() - 8) * 2 + (startTime.getMinute() >= 30 ? 1 : 0), 0); // Ensure non-negative
-                // Calculate the number of half-hour slots to span
-                long durationInHalfHours = ChronoUnit.MINUTES.between(startTime, endTime) / 30;
+                // Start at 8:30 AM if event starts before 8:30 AM
+                int startHour = Math.max(startTime.getHour(), 8);
+                int startRowIndex = (startHour - 8) * 2 + (startTime.getMinute() >= 30 ? 1 : 0)+1;
+                // Ensure startRowIndex is non-negative
+                startRowIndex = Math.max(startRowIndex, 1);
 
-                String summary = event.getSummary() != null ? event.getSummary().getValue() : "No summary provided";
+                // Calculate the ending row based on the end time
+                int endHour = Math.min(endTime.getHour(), 19); // End at 7 PM if event ends after 7 PM
+                int endRowIndex = (endHour - 8) * 2 + (endTime.getMinute() == 30 ? 1 : 0);
+                // Ensure endRowIndex is within bounds
+                endRowIndex = Math.min(endRowIndex, 23); // Assuming grid has 24 half-hour rows
+
+                // Calculate the number of half-hour slots to span
+                int durationInHalfHours = endRowIndex - startRowIndex + 1;
+
+                // Ensure durationInHalfHours is positive
+                durationInHalfHours = Math.max(durationInHalfHours, 1); // At least one half-hour slot
+                if (durationInHalfHours == 1) {
+                    durationInHalfHours = totalHalfHourSlots;
+                }
+                // String summary = event.getSummary() != null ? event.getSummary().getValue() : "No summary provided";
                 String description = event.getDescription() != null ? event.getDescription().getValue() : "No description provided";
-                String displayText = String.format("%s\n%s", summary, description);
+                // Create the event box and style it
+                String displayText = String.format("%s", description);
                 Text eventText = new Text(displayText);
                 eventText.setWrappingWidth(200); // Wrap text within the specified width
+
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
                 VBox eventBox = new VBox(eventText);
                 // make the border radius of the event box and the color only covering the box
@@ -387,13 +405,12 @@ public class CalendarView {
                 // inner margin for the event box inside the grid cell
 
                 GridPane.setRowIndex(eventBox, startRowIndex);
+                GridPane.setRowSpan(eventBox, durationInHalfHours);
                 GridPane.setMargin(eventBox, new Insets(2));
                 // Add a small gap between events
                 VBox.setMargin(eventBox, new Insets(2)); // Adjust as needed
-                // Span the event across the correct number of rows
-                GridPane.setRowIndex(eventBox, startRowIndex);
-                GridPane.setRowSpan(eventBox, (int) Math.max(durationInHalfHours, 1)); // Ensure positive duration
-                calendarGrid.add(eventBox, 1, startRowIndex); // Add the event box to the grid
+
+                calendarGrid.add(eventBox, columnIndex, startRowIndex); // Add the event box to the grid
             }
         }
     }
