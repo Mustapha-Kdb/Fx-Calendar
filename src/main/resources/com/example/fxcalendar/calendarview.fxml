@@ -27,7 +27,12 @@
         <ChoiceBox fx:id="viewChoiceBox" onAction="#handleChangeView" />
     </HBox>
     <Text fx:id="formationText" />
-   <ChoiceBox fx:id="FormationFilter" />
+   <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0">
+      <children>
+         <ChoiceBox fx:id="FormationFilter" />
+         <ChoiceBox fx:id="FormationClaAlt" />
+      </children>
+   </HBox>
 
     <ScrollPane fx:id="calendarScrollPane" maxWidth="1250.0" prefHeight="800" prefWidth="1200.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
 
