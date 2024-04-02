@@ -5,26 +5,13 @@
     "role": "Etudiant",
     "formation": "M1 IA",
     "theme": "DARK"
-  },
-  {
-<<<<<<< HEAD
-    "username": "enseignant1",
-    "password": "test",
-    "role": "Enseignant"
-  },
-    {
-        "username": "a",
-        "password": "a",
-        "role": "Admin"
-    }
-=======
+  },{
     "username": "ilsen",
     "password": "a",
     "role": "Etudiant",
     "formation": "M1 ILSEN",
     "theme": "DARK"
   },
-
   {
     "username": "noe",
     "password": "a",
@@ -32,5 +19,4 @@
     "formation": "Noe",
     "theme": "DARK"
   }
->>>>>>> origin/Mustapha
 ]

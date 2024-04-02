@@ -95,10 +95,10 @@ public class CalendarController {
     public void setCalendarApp(CalendarApp calendarApp) {
         this.calendarApp = calendarApp;
     }
+
+
         public void initialize(String formation) {
             textformation = formation;
-
-
             // Initialiser la liste des suggestions de formations
             ObservableList<String> formations = FXCollections.observableArrayList(
                     "--par formation--" , "M1 IA", "M1 ILSEN", "M1 SICOM",
@@ -176,6 +176,11 @@ public class CalendarController {
                 calendarView.setEvents(events);
 
                 updateCalendarView();
+                if (!FormationFilter.isDisabled()) {
+                    FormationFilter.setValue("--par matière--");
+                    //todo filtrer une matière par formation : IA, SICOM, ILSEN par exemple pour IA : approches neuronales, prototypage, test
+
+                }
             }
         }
 
