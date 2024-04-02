@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox fx:id="mainContainer" alignment="CENTER" spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@light-theme.css" fx:controller="com.example.fxcalendar.Controleur.CalendarController">
+<VBox fx:id="mainContainer" alignment="CENTER" spacing="10" stylesheets="@light-theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fxcalendar.Controleur.CalendarController">
 
     <!-- Boutons de navigation entre les mois -->
     <HBox fx:id="headerContainer" alignment="CENTER" spacing="10">
@@ -23,25 +23,23 @@
     </HBox>
 
 
-    <!-- Menu pour changer la vue (jour, semaine, mois) -->
     <HBox fx:id="viewContainer" alignment="CENTER" spacing="20">
         <ChoiceBox fx:id="viewChoiceBox" onAction="#handleChangeView" />
     </HBox>
-    <!-- Texte pour afficher la formation -->
     <Text fx:id="formationText" />
 
-    <ScrollPane fx:id="calendarScrollPane" prefHeight="800" prefWidth="1200" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <ScrollPane fx:id="calendarScrollPane" maxWidth="1250.0" prefHeight="800" prefWidth="1200.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
 
     <!-- Grille pour afficher les jours du calendrier -->
         <content>
-            <GridPane fx:id="calendarGrid" hgap="10" vgap="10" alignment="CENTER">
+            <GridPane fx:id="calendarGrid" alignment="CENTER" >
                 <columnConstraints>
-                    <ColumnConstraints percentWidth="10" hgrow="ALWAYS" /> <!-- Time Column -->
-                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Monday -->
-                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Tuesday -->
-                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Wednesday -->
-                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Thursday -->
-                    <ColumnConstraints percentWidth="18" hgrow="ALWAYS" /> <!-- Friday -->
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="10" /> <!-- Time Column -->
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="18" /> <!-- Monday -->
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="18" /> <!-- Tuesday -->
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="18" /> <!-- Wednesday -->
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="18" /> <!-- Thursday -->
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="18" /> <!-- Friday -->
                 </columnConstraints>
                 <rowConstraints>
                     <!-- Define row constraints for 24 rows, representing half-hour slots from 08:00 to 19:00 -->
@@ -71,6 +69,7 @@
                     <RowConstraints minHeight="30.0" vgrow="SOMETIMES" />
 
                 </rowConstraints>
+
 </GridPane>
         </content>
     </ScrollPane>
@@ -80,8 +79,5 @@
         <Button fx:id="searchEventButton" text="Rechercher un événement" />
         <Button fx:id="planningButton" text="Voir Emploi du Temps" />
         <Button fx:id="logoutButton" text="Se déconnecter" />
-        <Button fx:id="exitButton" text="Quitter" />
-        <Button fx:id="helpButton" text="Aide" />
-        <Button fx:id="aboutButton" text="À propos" />
     </HBox>
 </VBox>

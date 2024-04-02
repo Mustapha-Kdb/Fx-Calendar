@@ -2,16 +2,14 @@ package com.example.fxcalendar.Vue;
 
 import biweekly.component.VEvent;
 import com.example.fxcalendar.Controleur.CalendarController;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -147,7 +145,12 @@ public class CalendarView {
             calendarGrid.getRowConstraints().add(rowConstraints);
         }
     }
-
+    private VBox createStyledCell(Color color) {
+        VBox cell = new VBox();
+        cell.getStyleClass().add("grid-cell"); // Utilisez une classe CSS comme expliqué précédemment
+        cell.setBackground(Background.fill(color));
+        return cell;
+    }
     public String getSessionDetailsForDay(int dayOfMonth) {
         // Implémentez la logique pour récupérer les détails des séances pour le jour donné
 
@@ -161,52 +164,83 @@ public class CalendarView {
         calendarGrid.getChildren().clear();
         calendarGrid.getColumnConstraints().clear(); // Clear existing column constraints
         calendarGrid.getRowConstraints().clear(); // Clear existing row constraints
-
         // Add headers for days at the top row, column 1-5
         for (int i = 0; i < 5; i++) { // Monday to Friday
             LocalDate dayDate = semaine.plusDays(i);
             String dayLabel = dayDate.format(DateTimeFormatter.ofPattern("EEE dd/MM", Locale.FRANCE));
+
             Text dayText = new Text(dayLabel);
             dayText.setFont(Font.font("Arial", FontWeight.BOLD, 14)); // Ajuster la taille de la police
+
             VBox dayHeader = new VBox(dayText);
             dayHeader.setAlignment(Pos.CENTER);
-            calendarGrid.add(dayHeader, i + 1, 0);
+            dayHeader.getStyleClass().add("grid-cell");
+
+
+            calendarGrid.add(dayHeader, i + 1, 0); // Notez que le dernier 1,1 signifie qu'il ne s'étend que sur une cellule
 
 
         }
+
 
         // Calculate the total number of half-hour slots in a day
         int totalHalfHourSlots = (19 - 8) * 2 + 2;
 
         // Add time labels in the first column, rows 1-24
+        Color color=Color.LIGHTGRAY;
+
         for (int i = 8; i <= 19; i++) {
             // For each hour and half-hour slot
             Text hourLabel1 = new Text(String.format("%02d:00", i));
             Text hourLabel2 = new Text(String.format("%02d:30", i));
             VBox hourLabels1 = new VBox(hourLabel1);
             VBox hourLabels2 = new VBox(hourLabel2);
+            hourLabels1.setBackground(Background.fill(color));
+            hourLabels2.setBackground(Background.fill(color));
             hourLabels1.setAlignment(Pos.CENTER);
+            // border the hour labels for better visibility
+            hourLabels1.setStyle("-fx-border-color: black; -fx-border-width: 0.1px; ");
+            hourLabels2.setStyle("-fx-border-color: black; -fx-border-width: 0.1px;");
+
+            // fonte en gras pour les heures
+            hourLabel1.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            hourLabel2.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            // diminuer le width de la cellule pour les heures
             hourLabels2.setAlignment(Pos.CENTER);
             calendarGrid.add(hourLabels1, 0, (i - 8) * 2 + 1);
             calendarGrid.add(hourLabels2, 0, (i - 8) * 2 + 2);
-
-
-
-
-
+            color=(color == Color.LIGHTGRAY) ? Color.WHITE: (Color.LIGHTGRAY);
         }
-        // Ensure that days are fixed and visible, even if there are no events
-        for (int i = 0; i < 5; i++) { // Monday to Friday
+        color = Color.WHITE;
+        for (int i = 1; i <= totalHalfHourSlots; i++) {
+            if (i % 2 == 1) { // Changez la couleur après chaque deux rangées (en utilisant 4 car il y a deux cellules par rangée d'heure)
+                color = (color.equals(Color.LIGHTGRAY)) ? Color.WHITE : Color.LIGHTGRAY;
+            }
+
+            for (int j = 1; j < 6; j++) {
+                VBox cell = createStyledCell(color);
+                calendarGrid.add(cell, j, i);
+            }
+        }
+        // Redimensionner les cellules de la grille pour s'adapter à la taille de la grille
+        for (int i = 0; i < 5; i++) {
             ColumnConstraints columnConstraints = new ColumnConstraints();
-            columnConstraints.setPercentWidth(100.0 / 5); // Répartir la largeur de la colonne uniformément
+            columnConstraints.setPercentWidth(100.0 / 5);
+            columnConstraints.setHalignment(HPos.CENTER); // Centrer le contenu horizontalement
             calendarGrid.getColumnConstraints().add(columnConstraints);
         }
-        // Ensure that hours are fixed and visible, even if there are no events
-        for (int i = 0; i < 24; i++) { //
+
+
+// Ajuster la hauteur de la rangée pour les heures dans la vue par semaine
+// S'il y a 24 demi-heures dans la journée, alors chaque demi-heure a une hauteur de 100 / 24 % de la hauteur totale du `GridPane`
+        calendarGrid.getRowConstraints().clear(); // Effacez d'abord les contraintes existantes si nécessaire
+        for (int i = 0; i < 23; i++) {
             RowConstraints rowConstraints = new RowConstraints();
-            rowConstraints.setPercentHeight(100.0 / 24); // Répartir la largeur de la colonne uniformément
+            rowConstraints.setPercentHeight(100.0 / 24);
+            rowConstraints.setValignment(VPos.CENTER); // Centrer le contenu verticalement
             calendarGrid.getRowConstraints().add(rowConstraints);
         }
+
 
         // Sort events by start time
         events.sort(Comparator.comparing(event -> event.getDateStart().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
@@ -245,12 +279,18 @@ public class CalendarView {
                 String displayText = String.format("%s\n%s", summary, description);
                 Text eventText = new Text(displayText);
                 eventText.setWrappingWidth(200); // Wrap text within the specified width
+
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
                 VBox eventBox = new VBox(eventText);
-                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000;");
+                // make the border radius of the event box and the color only covering the box
+                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000; -fx-border-width: 0.3px; -fx-background-radius: 7px; -fx-border-radius: 7px;");
+                // inner margin for the text inside the event box
+                eventBox.setPadding(new Insets(5));
+                // inner margin for the event box inside the grid cell
 
                 GridPane.setRowIndex(eventBox, startRowIndex);
                 GridPane.setRowSpan(eventBox, durationInHalfHours);
+                GridPane.setMargin(eventBox, new Insets(2));
                 // Add a small gap between events
                 VBox.setMargin(eventBox, new Insets(2)); // Adjust as needed
 
@@ -282,12 +322,44 @@ public class CalendarView {
 
         // Add hours label column
         VBox hoursLabelColumn = new VBox(2);
+        // Calculate the total number of half-hour slots in a day
+        int totalHalfHourSlots = (19 - 8) * 2 + 2;
+
+        // Add time labels in the first column, rows 1-24
+        Color color=Color.LIGHTGRAY;
+
         for (int i = 8; i <= 19; i++) {
-            hoursLabelColumn.getChildren().add(new Text(String.format("%02d:00", i)));
-            hoursLabelColumn.getChildren().add(new Text(String.format("%02d:30", i)));
+            // For each hour and half-hour slot
+            Text hourLabel1 = new Text(String.format("%02d:00", i));
+            Text hourLabel2 = new Text(String.format("%02d:30", i));
+            VBox hourLabels1 = new VBox(hourLabel1);
+            VBox hourLabels2 = new VBox(hourLabel2);
+            hourLabels1.setBackground(Background.fill(color));
+            hourLabels2.setBackground(Background.fill(color));
+            hourLabels1.setAlignment(Pos.CENTER);
+            // border the hour labels for better visibility
+            hourLabels1.setStyle("-fx-border-color: black; -fx-border-width: 0.1px; ");
+            hourLabels2.setStyle("-fx-border-color: black; -fx-border-width: 0.1px;");
+            // fonte en gras pour les heures
+            hourLabel1.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            hourLabel2.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            // diminuer le width de la cellule pour les heures
+            hourLabels2.setAlignment(Pos.CENTER);
+            calendarGrid.add(hourLabels1, 0, (i - 8) * 2 + 1);
+            calendarGrid.add(hourLabels2, 0, (i - 8) * 2 + 2);
+            color=(color == Color.LIGHTGRAY) ? Color.WHITE: (Color.LIGHTGRAY);
         }
-        hoursLabelColumn.setAlignment(Pos.CENTER); // Center align hours labels
-        calendarGrid.add(hoursLabelColumn, 0, 1, 1, 5); // Add hours label column to cover all days
+        color = Color.WHITE;
+        for (int i = 1; i <= totalHalfHourSlots; i++) {
+            if (i % 2 == 1) { // Changez la couleur après chaque deux rangées (en utilisant 4 car il y a deux cellules par rangée d'heure)
+                color = (color.equals(Color.LIGHTGRAY)) ? Color.WHITE : Color.LIGHTGRAY;
+            }
+
+            for (int j = 1; j < 2; j++) {
+                VBox cell = createStyledCell(color);
+                calendarGrid.add(cell, j, i);
+            }
+        }
 
         // Add events to the appropriate time slots
         for (VEvent event : events) {
@@ -307,11 +379,17 @@ public class CalendarView {
                 Text eventText = new Text(displayText);
                 eventText.setWrappingWidth(200); // Wrap text within the specified width
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
-                // Create the event box and style it
                 VBox eventBox = new VBox(eventText);
-                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000;");
-                eventBox.setPrefWidth(200);
-                eventBox.setAlignment(Pos.CENTER); // Center align event details
+                // make the border radius of the event box and the color only covering the box
+                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000; -fx-border-width: 0.3px; -fx-background-radius: 7px; -fx-border-radius: 7px;");
+                // inner margin for the text inside the event box
+                eventBox.setPadding(new Insets(5));
+                // inner margin for the event box inside the grid cell
+
+                GridPane.setRowIndex(eventBox, startRowIndex);
+                GridPane.setMargin(eventBox, new Insets(2));
+                // Add a small gap between events
+                VBox.setMargin(eventBox, new Insets(2)); // Adjust as needed
                 // Span the event across the correct number of rows
                 GridPane.setRowIndex(eventBox, startRowIndex);
                 GridPane.setRowSpan(eventBox, (int) Math.max(durationInHalfHours, 1)); // Ensure positive duration

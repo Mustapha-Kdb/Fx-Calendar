@@ -5,6 +5,11 @@
     "role": "Etudiant"
   },
   {
+    "username": "a",
+    "password": "a",
+    "role": "Etudiant"
+  },
+  {
     "username": "enseignant1",
     "password": "test",
     "role": "Enseignant"
