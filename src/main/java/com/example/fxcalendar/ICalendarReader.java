@@ -16,15 +16,25 @@ public class ICalendarReader {
         String urlemploi = "";
 
         switch (filtre.toUpperCase()){
-            case "M1 IA":
+            case "M1 IA CLA":
                 urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/tdoption/def50200ff18615ca376c914d64718ba1c1b53f0e353a91e020e3db5ad510e3a1c6b2cddce1c75be4152b1f5a3e02d9afa7ac932694ecac8253a834133608548850e6039c8939b0c4a23636bb6d2a703da29063dd761acc6";
                 break;
-            case "M1 SICOM":
+            case "M1 IA ALT":
+                urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/tdoption/def50200a6feb5384bf725a47174fccbee30c1ba4efacc8b80a24085d50e033a93dc239b8f518cc0302da065e2d2272d41cc8c0cc3b00784856916234e5f3bf0cd4ec797bc54a7d116a5b759ca88e504796207c01fbccbae";
+                break;
+            case "M1 SICOM CLA":
                 urlemploi= "https://edt-api.univ-avignon.fr/api/exportAgenda/tdoption/def50200acb5334a16e3f4d32e098e3f55414fa4cb38f03efcebd6987082ba800915ae9121ea780330458f0f0cee4c0d1c89473d9c79089f7816a928cd76a84e98dbcd42ec13126b7d9ac69b0466bc24d5e9bac30e3e08a8";
                 break;
-            case "M1 ILSEN":
+            case "M1 SICOM ALT":
+                urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/tdoption/def50200a1bc27602f662bb59b19f83737bba4db65d5ce5ec46e1b3e0ee7f2ffdafa16564b15cafad214d7ebe8468d1a915429c9a37bdc803578092262648e8990b7724588e535426e41546161c61acc22750faa359b0c71";
+                break;
+
+            case "M1 ILSEN CLA":
                 urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/tdoption/def50200e5fecbb8d6522ce009fe47e6482eacdbcd4017263070dc27fda3903710694af29074cf3241e300ce97cc7f17d9b8c46f59e0451bfd15e710977d94b101229e36e4ed6273977b6376355fa14ae3851dd0a13cecb5";
-                        break;
+                break;
+            case "M1 ILSEN ALT":
+                urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/tdoption/def50200bfbf7405961f26baa8fa1f6ac8d0251b3731fab26da699ae517206a1ea7980a8f08c1663bf68a7a10477e06f1c3eb9b19c713223a18c5c6fe497f5ee06a13bb78101d6c14f751328cb8e47078cabae562778b41c";
+                break;
             case "APPROCHES NEURONALES":
                 urlemploi = "https://edt-api.univ-avignon.fr/api/exportAgenda/enseignement/def502002803b785793cfe66032b2c172579dfa6e5c465e7a43ab6f96c1958993ad42c3ade493af48e1a279d60a006e46e670fecb1667ed2676462a74b797e6c3aaa149a7796ed42980f96be248f6ffcbfd6029df19bbc1b3f0adba91bdc";
                 break;

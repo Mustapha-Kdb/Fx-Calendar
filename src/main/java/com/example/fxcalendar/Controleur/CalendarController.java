@@ -22,6 +22,8 @@ public class CalendarController {
     private CalendarApp calendarApp;
 
     @FXML
+    public ChoiceBox<String> FormationClaAlt;
+    @FXML
     public ChoiceBox<String> FormationSwitch;
     @FXML
     public ChoiceBox<String> FormationFilter;
@@ -100,7 +102,7 @@ public class CalendarController {
         public void initialize(String formation) {
             textformation = formation;
             // Initialiser la liste des suggestions de formations
-            ObservableList<String> formations = FXCollections.observableArrayList(
+            ObservableList<String> filters = FXCollections.observableArrayList(
                     "--par formation--" , "M1 IA", "M1 ILSEN", "M1 SICOM",
                     "--par salle--", "STAT 1", "S2", "S3" ,
                     "--par prof--","NOE"
@@ -114,20 +116,28 @@ public class CalendarController {
             ObservableList<String> filtresILSEN = FXCollections.observableArrayList(
                     "--par matière--", "prototypage", "test"
                     );
-            FormationSwitch.setItems(formations);
-            FormationSwitch.setValue("--par formation--");
-            FormationFilter.setItems(filtresILSEN);
+            ObservableList<String> filterMatiereSelonUser = (formation.equals("M1 IA")) ? filtresIA : (formation.equals("M1 SICOM")) ? filtresSICOM : filtresILSEN;
+            ObservableList<String> ClaAlt = FXCollections.observableArrayList(
+                    "CLA", "ALT"
+            );
+
+            FormationSwitch.setItems(filters);
+            FormationSwitch.setValue(formation);
+            FormationFilter.setItems(filterMatiereSelonUser);
             FormationFilter.setValue("--par matière--");
+            FormationClaAlt.setItems(ClaAlt);
+            FormationClaAlt.setValue("CLA");
 
             // Définir un écouteur pour la sélection d'une formation dans la ComboBox
             FormationSwitch.setOnAction(event -> handleFormationSelection(filtresIA, filtresSICOM, filtresILSEN));
             FormationFilter.setOnAction(event -> handleFormationFiltreSelection());
+            FormationClaAlt.setOnAction(event -> handleFormationClaAltSelection());
 
 
         updateDateText();
 
         ICalendarReader calendarReader = new ICalendarReader();
-        List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
+        List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
         System.out.println(textformation);
         calendarView = new CalendarView(events);
         calendarView.setCalendarController(this);
@@ -138,9 +148,21 @@ public class CalendarController {
         updateCalendarView();
     }
 
+    private void handleFormationClaAltSelection() {
+        // Mettre à jour la valeur de textformation avec la formation sélectionnée concaténée avec Cla ou Alt
+        textformation = FormationSwitch.getValue() ;
+        // afficher le choix de filtre dans le log console
+        System.out.println("Formation : " + textformation);
+
+        ICalendarReader calendarReader = new ICalendarReader();
+        List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
+        calendarView.setEvents(events);
+        updateCalendarView();
 
 
-        private void handleFormationFiltreSelection() {
+    }
+
+    private void handleFormationFiltreSelection() {
             // Mettre à jour la valeur de textformation avec la formation sélectionnée
             textformation = FormationFilter.getValue();
 
@@ -150,7 +172,7 @@ public class CalendarController {
                 updateDateText();
 
                 ICalendarReader calendarReader = new ICalendarReader();
-                List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
+                List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation +" " + FormationClaAlt.getValue());
                 calendarView.setEvents(events);
                 updateCalendarView();
             }
@@ -159,28 +181,38 @@ public class CalendarController {
         private void handleFormationSelection(ObservableList<String> filtresIA, ObservableList<String> filtresSICOM, ObservableList<String> filtresILSEN) {
             // Mettre à jour la valeur de textformation avec la formation sélectionnée
             textformation = FormationSwitch.getValue();
+            boolean isFormation = textformation.equals("M1 IA") || textformation.equals("M1 SICOM") || textformation.equals("M1 ILSEN");
+            FormationFilter.setDisable(!isFormation);
+            FormationClaAlt.setDisable(!isFormation);
+            if(!FormationClaAlt.isDisabled()){
+                FormationClaAlt.setValue("CLA");
+            }
             // afficher le choix de filtre dans le log console
-            System.out.println("Formation : " + textformation);
 
             // Vérifier si une formation valide est sélectionnée
             if (!textformation.equals("--par formation--") &&
                     !textformation.equals("--par prof--") &&
                     !textformation.equals("--par salle--")
             ) {
-                FormationFilter.setDisable(!textformation.equals("M1 IA") && !textformation.equals("M1 ILSEN") && !textformation.equals("M1 SICOM"));
                 updateDateText();
 
                 ICalendarReader calendarReader = new ICalendarReader();
-                System.out.println("Formation : " + textformation);
-                List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
-                calendarView.setEvents(events);
-
-                updateCalendarView();
+                List<biweekly.component.VEvent> events;
                 if (!FormationFilter.isDisabled()) {
                     FormationFilter.setValue("--par matière--");
+                    FormationClaAlt.setValue("CLA");
                     //todo filtrer une matière par formation : IA, SICOM, ILSEN par exemple pour IA : approches neuronales, prototypage, test
+                    events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
 
                 }
+                else {
+                    FormationClaAlt.setDisable(true);
+                    events = calendarReader.fetchAndParseCalendarData(textformation);
+                }
+                calendarView.setEvents(events);
+                updateCalendarView();
+
+
             }
         }
 

@@ -13,6 +13,14 @@
     "theme": "DARK"
   },
   {
+    "username": "sicom",
+    "password": "a",
+    "role": "Etudiant",
+    "formation": "M1 SICOM",
+    "theme": "DARK"
+  },
+
+  {
     "username": "noe",
     "password": "a",
     "role": "Enseignant",
