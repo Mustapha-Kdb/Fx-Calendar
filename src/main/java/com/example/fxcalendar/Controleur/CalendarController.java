@@ -172,7 +172,7 @@ public class CalendarController {
                 updateDateText();
 
                 ICalendarReader calendarReader = new ICalendarReader();
-                List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation +" " + FormationClaAlt.getValue());
+                List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
                 calendarView.setEvents(events);
                 updateCalendarView();
             }
