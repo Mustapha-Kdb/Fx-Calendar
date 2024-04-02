@@ -1,6 +1,7 @@
 #mainContainer {
     -fx-padding: 20px;
     -fx-background-color: white;
+
 }
 
 #headerContainer, #footerContainer {
@@ -41,11 +42,24 @@ ToggleButton:selected, Button:hover {
 }
 
 #calendarGrid .row {
-    -fx-padding: 5px 0;
+    -fx-padding: 1px 0;
 }
 
 #calendarGrid {
     -fx-background-color: #ffffff;
     -fx-border-color: #dddddd;
     -fx-border-width: 1;
+}
+.grid-cell {
+    -fx-border-color: black;
+    -fx-border-width: 0.2px;
+    -fx-padding: 1px; /* Ajustez selon le besoin */
+
+}
+.event-box {
+    -fx-background-color: #ee974b;
+    -fx-border-color: #000000;
+    -fx-border-width: 0.3px;
+    -fx-background-radius: 7px;
+    -fx-border-radius: 7px;
 }
