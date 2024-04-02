@@ -13,10 +13,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class CalendarApp extends Application {
-    private static final String LIGHT_THEME = "light-theme.css";
-    private static final String DARK_THEME = "dark-theme.css";
-
-    private boolean isDarkTheme = false;
+    private static final String LIGHT_THEME = "styles/light-theme.css";
+    private static final String DARK_THEME = "styles/dark-theme.css";
 
     private Stage primaryStage;
     private Scene scene;
@@ -49,19 +47,15 @@ public class CalendarApp extends Application {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
             Parent root = loader.load();
-            loader.<CalendarController>getController().initialize(formation);
+            loader.<CalendarController>getController().initialize(formation, theme);
 
-            // Ici, vous devez ajuster le contrôleur de vue du calendrier pour accepter et utiliser la formation et le thème
-            // Exemple : CalendarViewController calendarController = loader.getController();
-            // calendarController.setFormation(formation);
-            // calendarController.setTheme(theme); // Assurez-vous d'implémenter ces méthodes dans le contrôleur de la vue du calendrier
 
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             scene.setRoot(root);
             scene.getWindow().setWidth(screenBounds.getWidth());
             scene.getWindow().setHeight(screenBounds.getHeight());
 
-            setTheme(scene, "dark".equals(theme) ? DARK_THEME : LIGHT_THEME); // Exemple de basculement basé sur le thème
+            setTheme(scene, "DARK".equals(theme) ? DARK_THEME : LIGHT_THEME); // Exemple de basculement basé sur le thème
 
             primaryStage.setTitle("University Calendar - " + formation);
         } catch (IOException e) {
@@ -72,14 +66,7 @@ public class CalendarApp extends Application {
         scene.getStylesheets().clear();
         scene.getStylesheets().add(getClass().getResource(theme).toExternalForm());
     }
-    public void toggleTheme() {
-        if (isDarkTheme) {
-            setTheme(this.scene, LIGHT_THEME);
-        } else {
-            setTheme(this.scene, DARK_THEME);
-        }
-        isDarkTheme = !isDarkTheme;
-    }
+
 
     public static void main(String[] args) {
         launch(args);

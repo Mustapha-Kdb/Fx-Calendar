@@ -8,11 +8,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
@@ -33,6 +36,9 @@ public class CalendarController {
     private Button previousButton;
     @FXML
     private Button nextButton;
+    @FXML
+    private VBox mainContainer; // Assurez-vous que l'ID correspond à celui de votre FXML
+    private boolean isLightTheme; // Un indicateur pour suivre le thème actuel
 
     @FXML
     private ChoiceBox<String> viewChoiceBox;
@@ -98,8 +104,9 @@ public class CalendarController {
         this.calendarApp = calendarApp;
     }
 
-        public void initialize(String formation) {
+        public void initialize(String formation, String theme) {
             textformation = formation;
+            isLightTheme = theme.equals("LIGHT");
             // Initialiser la liste des suggestions de formations
             ObservableList<String> filters = FXCollections.observableArrayList(
                     "--par formation--" , "M1 IA", "M1 ILSEN", "M1 SICOM",
@@ -152,6 +159,7 @@ public class CalendarController {
         textformation = FormationSwitch.getValue() ;
         // afficher le choix de filtre dans le log console
         System.out.println("Formation : " + textformation);
+        FormationFilter.setValue("--par matière--");
 
         ICalendarReader calendarReader = new ICalendarReader();
         List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
@@ -171,7 +179,7 @@ public class CalendarController {
                 updateDateText();
 
                 ICalendarReader calendarReader = new ICalendarReader();
-                List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation +" " + FormationClaAlt.getValue());
+                List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation);
                 calendarView.setEvents(events);
                 updateCalendarView();
             }
@@ -180,7 +188,13 @@ public class CalendarController {
         private void handleFormationSelection(ObservableList<String> filtresIA, ObservableList<String> filtresSICOM, ObservableList<String> filtresILSEN) {
             // Mettre à jour la valeur de textformation avec la formation sélectionnée
             textformation = FormationSwitch.getValue();
-            FormationClaAlt.setValue("CLA");
+            System.out.println("Formation : " + textformation);
+            boolean isFormation = textformation.equals("M1 IA") || textformation.equals("M1 SICOM") || textformation.equals("M1 ILSEN");
+            FormationFilter.setDisable(!isFormation);
+            FormationClaAlt.setDisable(!isFormation);
+            if (!FormationClaAlt.isDisabled()) {
+                FormationClaAlt.setValue("CLA");
+            }
             // afficher le choix de filtre dans le log console
 
             // Vérifier si une formation valide est sélectionnée
@@ -188,9 +202,6 @@ public class CalendarController {
                     !textformation.equals("--par prof--") &&
                     !textformation.equals("--par salle--")
             ) {
-                boolean isFormation = textformation.equals("M1 IA") || textformation.equals("M1 SICOM") || textformation.equals("M1 ILSEN");
-                FormationFilter.setDisable(!isFormation);
-                FormationClaAlt.setDisable(!isFormation);
                 updateDateText();
 
                 ICalendarReader calendarReader = new ICalendarReader();
@@ -340,12 +351,28 @@ public class CalendarController {
 
     public void handleAboutButton(ActionEvent actionEvent) {
     }
-
-    @FXML
-    public void toggleTheme(ActionEvent actionEvent) {
-        if (calendarApp != null) {
-            calendarApp.toggleTheme();
+    private void setTheme(String theme) {
+        URL resource = getClass().getResource(theme);
+        if (resource == null) {
+            System.err.println("Le fichier CSS n'a pas été trouvé: " + theme);
+            return;
         }
+
+        mainContainer.getStylesheets().clear();
+        mainContainer.getStylesheets().add(resource.toExternalForm());
+    }
+    @FXML
+    private void toggleTheme() {
+        String cssFile = !isLightTheme ? "/styles/light-theme.css" : "/styles/dark-theme.css";
+        URL resource = getClass().getResource(cssFile);
+        if (resource == null) {
+            System.err.println("Le fichier CSS n'a pas été trouvé: " + cssFile);
+            return;
+        }
+
+        mainContainer.getStylesheets().clear();
+        mainContainer.getStylesheets().add(resource.toExternalForm());
+        isLightTheme = !isLightTheme;
     }
 
 

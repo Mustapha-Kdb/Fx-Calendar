@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox fx:id="mainContainer" alignment="CENTER" spacing="10" stylesheets="@light-theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fxcalendar.Controleur.CalendarController">
+<VBox fx:id="mainContainer" alignment="CENTER" spacing="10" stylesheets="@styles/light-theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fxcalendar.Controleur.CalendarController">
 
     <!-- Boutons de navigation entre les mois -->
     <HBox fx:id="headerContainer" alignment="CENTER" spacing="10">
