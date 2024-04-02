@@ -8,5 +8,10 @@
     "username": "enseignant1",
     "password": "test",
     "role": "Enseignant"
-  }
+  },
+    {
+        "username": "a",
+        "password": "a",
+        "role": "Admin"
+    }
 ]
