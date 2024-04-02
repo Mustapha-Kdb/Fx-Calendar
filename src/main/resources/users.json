@@ -1,17 +1,24 @@
 [
   {
-    "username": "etudiant1",
-    "password": "test",
-    "role": "Etudiant"
-  },
-  {
-    "username": "a",
+    "username": "ia",
     "password": "a",
-    "role": "Etudiant"
+    "role": "Etudiant",
+    "formation": "M1 IA",
+    "theme": "DARK"
   },
   {
-    "username": "enseignant1",
-    "password": "test",
-    "role": "Enseignant"
+    "username": "ilsen",
+    "password": "a",
+    "role": "Etudiant",
+    "formation": "M1 ILSEN",
+    "theme": "DARK"
+  },
+
+  {
+    "username": "noe",
+    "password": "a",
+    "role": "Enseignant",
+    "formation": "Noe",
+    "theme": "DARK"
   }
 ]

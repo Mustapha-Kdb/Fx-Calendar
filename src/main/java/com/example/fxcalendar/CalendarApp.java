@@ -1,5 +1,6 @@
 package com.example.fxcalendar;
 
+import com.example.fxcalendar.Controleur.CalendarController;
 import com.example.fxcalendar.Controleur.LoginController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -44,19 +45,25 @@ public class CalendarApp extends Application {
         }
     }
 
-    public void loadCalendarView() {
+    public void loadCalendarView(String formation, String theme) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
             Parent root = loader.load();
+            loader.<CalendarController>getController().initialize(formation);
+
+            // Ici, vous devez ajuster le contrôleur de vue du calendrier pour accepter et utiliser la formation et le thème
+            // Exemple : CalendarViewController calendarController = loader.getController();
+            // calendarController.setFormation(formation);
+            // calendarController.setTheme(theme); // Assurez-vous d'implémenter ces méthodes dans le contrôleur de la vue du calendrier
 
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             scene.setRoot(root);
             scene.getWindow().setWidth(screenBounds.getWidth());
             scene.getWindow().setHeight(screenBounds.getHeight());
 
-            setTheme(scene, isDarkTheme ? DARK_THEME : LIGHT_THEME);
+            setTheme(scene, "dark".equals(theme) ? DARK_THEME : LIGHT_THEME); // Exemple de basculement basé sur le thème
 
-            primaryStage.setTitle("University Calendar");
+            primaryStage.setTitle("University Calendar - " + formation);
         } catch (IOException e) {
             e.printStackTrace();
         }

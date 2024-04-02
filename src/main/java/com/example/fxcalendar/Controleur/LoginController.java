@@ -8,6 +8,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import java.util.Locale;
+
 public class LoginController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -22,9 +24,12 @@ public class LoginController {
 
     @FXML
     protected void handleLogin() {
-        UserModel user = userController.authenticate(usernameField.getText(), passwordField.getText());
+        UserModel user = userController.authenticate(usernameField.getText().toLowerCase(Locale.ROOT), passwordField.getText().toLowerCase());
         if (user != null) {
-            app.loadCalendarView(); // Redirection vers le calendrier
+            // Supposons que UserModel contient maintenant des champs pour `formation` et `theme`
+            String formation = user.getFormation();
+            String theme = user.getTheme(); // Assurez-vous que ces méthodes existent
+            app.loadCalendarView(formation, theme); // Modifiez cette méthode pour accepter ces paramètres
         } else {
             loginMessage.setText("Identifiant ou mot de passe incorrect.");
         }
