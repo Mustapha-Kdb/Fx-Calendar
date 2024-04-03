@@ -33,11 +33,23 @@ public class CalendarApp extends Application {
             LoginController controller = loader.getController();
             controller.setApp(this);
 
-            scene = new Scene(root);
-            setTheme(scene, LIGHT_THEME);
+            // Initialisation de la scène si elle n'existe pas
+            if (scene == null) {
+                scene = new Scene(root);
+                primaryStage.setScene(scene);
+            } else {
+                // Si la scène existe déjà, changez simplement sa racine
+                scene.setRoot(root);
+            }
+
+            // Réinitialisation de la taille préférée pour la vue de connexion
+            primaryStage.setWidth(400); // Utilisez la largeur préférée pour la vue de connexion
+            primaryStage.setHeight(400); // Utilisez la hauteur préférée pour la vue de connexion
+
+            setTheme(scene, LIGHT_THEME); // Réinitialiser au thème par défaut si nécessaire
 
             primaryStage.setTitle("Login");
-            primaryStage.setScene(scene);
+            primaryStage.centerOnScreen(); // Pour centrer la fenêtre sur l'écran
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,6 +61,7 @@ public class CalendarApp extends Application {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
             Parent root = loader.load();
             loader.<CalendarController>getController().initialize(user);
+            loader.<CalendarController>getController().setApp(this);
             String theme=user.getTheme();
             String formation=user.getFormation();
 
@@ -73,5 +86,4 @@ public class CalendarApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    //on close enregistre le theme dans le fichier json
 }

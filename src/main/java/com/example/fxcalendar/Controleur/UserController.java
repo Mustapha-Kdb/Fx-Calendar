@@ -56,6 +56,7 @@ public class UserController {
             e.printStackTrace();
         }
     }
+
     public void saveUsers(List<UserModel> users) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -76,12 +77,13 @@ public class UserController {
 
         try {
             // Charger la liste actuelle des utilisateurs
-            List<UserModel> users = objectMapper.readValue(file, new TypeReference<List<UserModel>>() {});
+            List<UserModel> users = objectMapper.readValue(file, new TypeReference<List<UserModel>>() {
+            });
             UserModel user = users.stream().filter(u -> u.getUsername().equals(username)).findFirst().orElse(null);
 
             if (user != null) {
                 // Convertir VEvent en un format approprié pour le JSON (par exemple, EventModel ou un Map)
-                EventModel eventModel = convertVEventToEventModel(vEvent);
+                EventModel eventModel = convertVEventToEventModel(user, vEvent);
                 user.getEvents().add(eventModel);
 
                 // Ajouter l'événement à l'utilisateur
@@ -92,7 +94,7 @@ public class UserController {
 
                 // Sauvegarder la liste mise à jour des utilisateurs dans le fichier JSON
                 objectMapper.writeValue(file, users);
-                System.out.println(this+"Successfully added event to user.");
+                System.out.println(this + "Successfully added event to user.");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -110,7 +112,7 @@ public class UserController {
         }
     }
 
-    private EventModel convertVEventToEventModel(VEvent vEvent) {
+    private EventModel convertVEventToEventModel(UserModel user, VEvent vEvent) {
         // Default values
         String title = "No Title";
         String description = "No Description";
@@ -120,6 +122,7 @@ public class UserController {
         String date = LocalDate.now().toString();
         String duration = "1"; // Default duration
         String color = "#0000FF"; // Default color (blue)
+        String formation = user.getFormation();
 
         if (vEvent.getSummary() != null && vEvent.getSummary().getValue() != null) {
             title = vEvent.getDescription().getValue();
@@ -143,10 +146,61 @@ public class UserController {
             location = vEvent.getLocation().getValue();
         }
 
+
         // Assuming you have a way to set or get the color from the event, this is a placeholder.
         // Color might be stored in another property or require a custom solution based on your application's design.
 
-        return new EventModel(title, description, date, startHour, endHour, location,color, duration );
+        return new EventModel(user.getUsername(), title, description, date, startHour, endHour, location, color, duration, formation);
+    }
+
+
+    public void deleteEventFromUser(String username, EventModel eventToRemove) {
+        // Votre logique actuelle pour trouver l'utilisateur
+        UserModel user = findUserByUsername(username);
+
+        if (user != null) {
+            user.getEvents().removeIf(event ->
+                    event.getTitle().equals(eventToRemove.getTitle()) &&
+                            event.getDate().equals(eventToRemove.getDate()) &&
+                            event.getStartHour().equals(eventToRemove.getStartHour())
+            );
+            // Ensuite, sauvegarder les utilisateurs mis à jour dans le fichier JSON comme avant
+            saveUsers(users);
+        }
+
+    }
+
+
+    private UserModel findUserByUsername(String username) {
+        for (UserModel user : users) {
+            if (user.getUsername().equals(username)) {
+                return user; // Retourner l'utilisateur si trouvé
+            }
+        }
+        return null; // Retourner null si aucun utilisateur correspondant n'est trouvé
+    }
+
+
+    public void updateEventForUser(String username, EventModel eventToUpdate) {
+        UserModel user = findUserByUsername(username);
+
+        if (user != null) {
+            for (EventModel event : user.getEvents()) {
+                if (event.getId().equals(eventToUpdate.getId())) { // Supposer que chaque événement a un champ 'id'
+                    event.setTitle(eventToUpdate.getTitle());
+                    event.setDescription(eventToUpdate.getDescription());
+                    event.setLocation(eventToUpdate.getLocation());
+                    event.setColor(eventToUpdate.getColor());
+                    event.setEndHour(eventToUpdate.getEndHour());
+                    event.setStartHour(eventToUpdate.getStartHour());
+                    event.setDate(eventToUpdate.getDate());
+
+                    break;
+                }
+            }
+            // Ensuite, sauvegarder les utilisateurs mis à jour dans le fichier JSON comme avant
+            saveUsers(users);
+        }
     }
 
 

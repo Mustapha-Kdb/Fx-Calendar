@@ -1,7 +1,6 @@
 package com.example.fxcalendar.Controleur;
 
 import com.example.fxcalendar.CalendarApp;
-import com.example.fxcalendar.Controleur.UserController;
 import com.example.fxcalendar.Modele.UserModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -32,5 +31,13 @@ public class LoginController {
             loginMessage.setText("Identifiant ou mot de passe incorrect.");
         }
     }
+
+
+    public void resetView() {
+        usernameField.setText("");
+        passwordField.setText("");
+        loginMessage.setText("");
+    }
+
 }
 

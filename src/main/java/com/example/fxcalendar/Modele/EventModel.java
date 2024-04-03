@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EventModel {
+    private String id;
     private String title;
     private String description;
     private String location;
@@ -12,11 +13,13 @@ public class EventModel {
     private String endHour;
     private String duration;
     private String color;
+    private String formation;
 
     // Constructeur par défaut
     @JsonCreator
     public EventModel(
         // initialisation optionnelle
+        @JsonProperty("id") String id,
         @JsonProperty("title") String title,
         @JsonProperty("description") String description,
         @JsonProperty("date") String date,
@@ -24,9 +27,11 @@ public class EventModel {
         @JsonProperty("endTime") String endHour,
         @JsonProperty("location") String location,
         @JsonProperty("color") String color,
-        @JsonProperty("duration") String duration
+        @JsonProperty("duration") String duration,
+        @JsonProperty("formation") String formation
         )
     {
+        this.id=id;
         this.title=title;
         this.description = description;
         this.date= date;
@@ -35,6 +40,7 @@ public class EventModel {
         this.location=location;
         this.color=color;
         this.duration=duration;
+        this.formation=formation;
 
     }
 
@@ -107,5 +113,21 @@ public class EventModel {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public String getFormation() {
+        return formation;
+    }
+
+    public void setFormation(String formation) {
+        this.formation = formation;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
