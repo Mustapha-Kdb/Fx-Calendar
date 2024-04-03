@@ -17,7 +17,7 @@
 
 ToggleButton, Button {
     -fx-background-color: #E07C24; /* Darker button background */
-    -fx-text-fill: #fcf9f9; /* Lighter text for contrast */
+    -fx-text-fill: Black; /* Lighter text for contrast */
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }

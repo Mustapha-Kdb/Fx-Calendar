@@ -14,6 +14,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import java.time.LocalTime;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -23,6 +24,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -58,18 +60,20 @@ public class CalendarView {
     public void displayEventsParMois(List<biweekly.component.VEvent> events, YearMonth Month) {
         //vider le GridPane avant d'ajouter de nouveaux événements
         calendarGrid.getChildren().clear();
-
+        calendarGrid.getColumnConstraints().clear(); // Effacer les contraintes de colonne existantes
+        calendarGrid.getRowConstraints().clear(); // Effacer aussi les contraintes de ligne existantes
 
         // Nombre total de jours dans le mois
         int totalDaysInMonth = Month.lengthOfMonth();
 
         // Nombre de colonnes et de lignes dans la grille (GridPane)
-        int numColumns = 7; // 7 jours dans une semaine
+        int numColumns = 5; // 7 jours dans une semaine
         int numRows = (totalDaysInMonth + numColumns - 1) / numColumns; // Arrondi vers le haut
 
         // Déclaration et initialisation des variables columnIndex et rowIndex
         int columnIndex = 0;
-        int rowIndex = 0;
+        int rowIndex = 1;
+
 
         // Créer un tableau pour suivre le nombre de séances pour chaque jour du mois
         int[] sessionCountPerDay = new int[totalDaysInMonth];
@@ -85,22 +89,81 @@ public class CalendarView {
 
         }
 
+        String[] joursDeLaSemaine = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"};
+        RowConstraints headerRowConstraints = new RowConstraints(40,40,40); // Hauteur fixe pour les en-têtes
+        calendarGrid.getRowConstraints().add(headerRowConstraints);
+        calendarGrid.setStyle("-fx-border-width: 1px; -fx-border-color: black; -fx-border-style: solid; -fx-border-radius: 5px; -fx-padding: 5px; -fx-background-color: #f4f4f4;");
+
+        for (int i = 0; i < 5; i++) { // Monday to Friday
+            // Création d'un label avec le jour de la semaine
+            Label dayLabel = new Label(joursDeLaSemaine[i]);
+            dayLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14)); // Ajustement de la taille de la police
+            dayLabel.setAlignment(Pos.CENTER); // Centre le texte dans le Label
+            // Optionnel: Si vous utilisez CSS pour styliser, vous pouvez ajouter une classe CSS
+            // dayLabel.getStyleClass().add("day-header");
+
+            // Création d'un VBox pour contenir le label (facultatif si vous n'ajoutez pas d'autres éléments dans le VBox)
+            VBox dayHeader = new VBox(dayLabel);
+            dayHeader.setAlignment(Pos.CENTER); // Centre le contenu du VBox
+
+            // Ajout du VBox à votre GridPane
+            dayHeader.getStyleClass().add("grid-cell");
+            calendarGrid.add(dayHeader, i, 0);
+        }
+
+
+
+
         // Ajouter un texte pour chaque jour dans le calendrier avec le nombre de séances
         for (int i = 0; i < totalDaysInMonth; i++) {
-            // Créer un label pour afficher le jour du mois
-            Label dayLabel = new Label(Integer.toString(i + 1));
+            // Créer un label pour afficher le jour du mois sans saturday et sunday
+            LocalDate day = LocalDate.of(Month.getYear(), Month.getMonthValue(), i + 1);
+            if (day.getDayOfWeek().getValue() == 6 || day.getDayOfWeek().getValue() == 7) {
+                continue; // Skip Saturday and Sunday
+            }
+
+
+            int dayOfMonth = i + 1;
+            String emoji = "\uD83D\uDCC6"; // Emoji de calendrier
+
+// Création du texte du label
+            String labelText = "Le " + dayOfMonth + ", " + Month.getMonth().toString() + " " + emoji;
+
+// Création du label avec le texte
+            Label dayLabel = new Label(labelText); // Emoji for calendar
             dayLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
 
             // Créer un label pour afficher le nombre de séances pour ce jour
-            Label sessionCountLabel = new Label(Integer.toString(sessionCountPerDay[i]));
+            int sessionCount = sessionCountPerDay[i];
+            String emoji2 = "\uD83D\uDCFA"; // Emoji pour l'exemple
 
+// Construction du texte pour le label
+            String labelText2 = sessionCount + " séance" + (sessionCount > 1 ? "s " : " ") + emoji2;
+
+// Création du label avec le texte
+            Label sessionCountLabel = new Label(labelText2);
             // Créer un VBox pour contenir les labels du jour et du nombre de séances
             VBox dayVBox = new VBox();
             dayVBox.setAlignment(Pos.CENTER); // Aligner le contenu au centre
             dayVBox.getChildren().addAll(dayLabel, sessionCountLabel);
 
-            // Ajouter un style CSS au VBox pour un meilleur aspect visuel
-            dayVBox.setStyle("-fx-border-color: black; -fx-border-width: 1px; -fx-padding: 5px;");
+            // Ajouter un style au dayVbox
+            dayVBox.setStyle("-fx-background-color: #ee974b; " +
+                    "-fx-border-color: #000000; " +
+                    "-fx-border-width: 0.3px; " +
+                    "-fx-background-radius: 7px; " +
+                    "-fx-border-radius: 7px;");
+
+
+
+
+            // Ajouter une marge intérieure pour le VBox
+            GridPane.setMargin(dayVBox, new Insets(3));
+
+            // ajouter un effect lorsque hover
+
+
+
 
             // Ajouter un gestionnaire d'événements pour le survol de la souris
             int finalI = i;
@@ -108,7 +171,7 @@ public class CalendarView {
                 // Gérer l'événement de survol
                 // Afficher les détails des séances pour ce jour
                 // par exemple, en affichant une info-bulle avec les détails
-                String sessionDetails = getSessionDetailsForDay(finalI + 1);
+                String sessionDetails = getSessionDetailsForDay(finalI + 1, Month);
                 Tooltip tooltip = new Tooltip(sessionDetails);
                 Tooltip.install(dayVBox, tooltip);
             });
@@ -141,14 +204,15 @@ public class CalendarView {
 
         // Redimensionner les cellules de la grille pour s'adapter à la taille de la grille
         for (int i = 0; i < numColumns; i++) {
-            ColumnConstraints columnConstraints = new ColumnConstraints();
-            columnConstraints.setPercentWidth(100.0 / numColumns);
+            ColumnConstraints columnConstraints = new ColumnConstraints(250, 250, 250); // minWidth, prefWidth, maxWidth
+            columnConstraints.setHgrow(Priority.ALWAYS); // Permettre à ces colonnes de s'étendre si nécessaire
             calendarGrid.getColumnConstraints().add(columnConstraints);
         }
 
         for (int i = 0; i < numRows; i++) {
-            RowConstraints rowConstraints = new RowConstraints();
-            rowConstraints.setPercentHeight(100.0 / numRows);
+
+            RowConstraints rowConstraints = new RowConstraints(100, 100, 100);
+            rowConstraints.setVgrow(Priority.ALWAYS); // Permettre à ces lignes de s'étendre si nécessaire
             calendarGrid.getRowConstraints().add(rowConstraints);
         }
     }
@@ -158,10 +222,10 @@ public class CalendarView {
         cell.setBackground(Background.fill(color));
         return cell;
     }
-    public String getSessionDetailsForDay(int dayOfMonth) {
+    public String getSessionDetailsForDay(int dayOfMonth, YearMonth Month) {
         // Implémentez la logique pour récupérer les détails des séances pour le jour donné
 
-        return "Details for day " + dayOfMonth;
+        return "Détails pour le " + dayOfMonth + ", " +  Month.getMonth().toString();
     }
 
 
@@ -300,21 +364,26 @@ public class CalendarView {
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
                 VBox eventBox = new VBox(eventText);
 
+
                 // make the border radius of the event box and the color only covering the box
                 String eventBoxStyle = stylishEventBox(type);
                 eventBox.setStyle(eventBoxStyle);
                 // inner margin for the text inside the event box
                 eventBox.setPadding(new Insets(5));
                 // inner margin for the event box inside the grid cell
+//                double eventDurationInMinutes = Duration.between(startTime, endTime).toMinutes();
+//                double heightPer30Min = 20; // Hauteur pour 30 minutes
+//                double totalEventHeight = (eventDurationInMinutes / 30.0) * heightPer30Min;
+
+//                eventBox.setMaxHeight(totalEventHeight); // Définir l'hauteur maximale basée sur la durée
 
                 // Création d'une infobulle avec le contenu complet de l'événement
-                String tooltipText = String.format("Description: %s", description);
+                String tooltipText = String.format("Description: %s", description  + "Heure de debut: " + event.getDateStart().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalTime() + "\n" + "Heure de fin: " + event.getDateEnd().getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
                 Tooltip tooltip = new Tooltip(tooltipText);
                 Tooltip.install(eventBox, tooltip);
                 // Ajuster la durée pour que la Tooltip ne se cache pas automatiquement
                 tooltip.setShowDuration(Duration.INDEFINITE);
 
-                // Cette méthode nécessite JavaFX 9 ou supérieur
                 tooltip.setShowDelay(Duration.millis(100)); // Délai avant d'afficher la Tooltip
 
 
@@ -370,22 +439,22 @@ public class CalendarView {
         String color = "#ee974b"; // Default color
         switch (type.toLowerCase()) {
             case "cours":
-                color = "#ee974b"; // Orange
+                color = "#f4a261"; // Orange
                 break;
             case "td":
-                color = "#4caf50"; // Green
+                color = "#08C5D1"; // Green
                 break;
             case "tp":
-                color = "#2196f3"; // Blue
+                color = "#08C5D1"; // Blue
                 break;
                 case "cm/td":
-                color = "#2196f3"; // Blue
+                color = "#08C5D1"; // Blue
                 break;
             case "evaluation":
-                color = "#f44336"; // Red
+                color = "#CF4146"; // Red
                 break;
             default:
-                color = "#9e9e9e"; // Grey
+                color = "#f4a261"; // Grey
                 break;
         }
 
@@ -542,7 +611,7 @@ public class CalendarView {
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
                 VBox eventBox = new VBox(eventText);
                 // make the border radius of the event box and the color only covering the box
-                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000; -fx-border-width: 0.3px; -fx-background-radius: 7px; -fx-border-radius: 7px;");
+                eventBox.setStyle("-fx-background-color: #f4a261; -fx-border-color: #000000; -fx-border-width: 0.3px; -fx-background-radius: 7px; -fx-border-radius: 7px;");
                 // inner margin for the text inside the event box
                 eventBox.setPadding(new Insets(5));
                 // inner margin for the event box inside the grid cell

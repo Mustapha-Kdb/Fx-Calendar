@@ -84,6 +84,6 @@
 
     <HBox fx:id="footerContainer" alignment="CENTER" spacing="20">
         <Button fx:id="addEventButton" text="Ajouter un événement" onAction="#handleAddEventButton"/>
-        <Button fx:id="logoutButton" text="Se déconnecter"  onAction="#handleLogoutButton"/>
+        <Button fx:id="logoutButton" text="Déconnexion" onAction="#handleLogoutButton" />
     </HBox>
 </VBox>

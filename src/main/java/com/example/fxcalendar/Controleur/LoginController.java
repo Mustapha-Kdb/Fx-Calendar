@@ -7,7 +7,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.event.ActionEvent;
 
+
+import java.awt.event.KeyEvent;
 import java.util.Locale;
 
 public class LoginController {
@@ -33,5 +37,11 @@ public class LoginController {
             loginMessage.setText("Identifiant ou mot de passe incorrect.");
         }
     }
+
+    public void initialize() {
+        usernameField.setOnAction(event -> handleLogin());
+        passwordField.setOnAction(event -> handleLogin());
+    }
+
 }
 

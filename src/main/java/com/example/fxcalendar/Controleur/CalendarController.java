@@ -13,16 +13,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -63,6 +68,8 @@ public class CalendarController {
     @FXML
 
     private Button ThemeButton;
+    @FXML
+    private Button logoutButton;
     private String textformation;
 
     @FXML
@@ -432,11 +439,25 @@ public class CalendarController {
     }
 
 
-
+    @FXML
     public void handleLogoutButton(ActionEvent actionEvent) {
-        //retourner à la page de connexion
-
+//        try {
+//            // Remplacez "LoginView.fxml" par le chemin correct de votre fichier FXML pour l'écran de connexion.
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/fxcalendar/LoginView.fxml"));
+//            Parent root = loader.load();
+//
+//            // Obtention de la scène actuelle à partir du bouton de déconnexion et mise à jour du root.
+//            Scene scene = logoutButton.getScene();
+//            scene.setRoot(root);
+//
+//            Stage stage = (Stage) scene.getWindow();
+//            stage.setScene(scene);
+//            stage.show();
+//        } catch (IOException e) {
+//            e.printStackTrace(); // Imprimez la trace de la pile pour aider au débogage si une exception est levée.
+//        }
     }
+
 
     private void setTheme(String theme) {
         URL resource = getClass().getResource(theme);
