@@ -3,9 +3,9 @@ package com.example.fxcalendar.Controleur;
 import biweekly.component.VEvent;
 import biweekly.property.DateEnd;
 import biweekly.property.DateStart;
-import biweekly.property.Location;
 import biweekly.util.DayOfWeek;
 import com.example.fxcalendar.ICalendarReader;
+import com.example.fxcalendar.Modele.EventModel;
 import com.example.fxcalendar.Modele.UserModel;
 import com.example.fxcalendar.Vue.CalendarView;
 import javafx.application.Platform;
@@ -24,10 +24,8 @@ import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
 
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
@@ -152,8 +150,9 @@ public class CalendarController {
 
 
         updateDateText();
+        loadUserEvents(user);
 
-        ICalendarReader calendarReader = new ICalendarReader();
+            ICalendarReader calendarReader = new ICalendarReader();
         List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
         System.out.println(textformation);
         calendarView = new CalendarView(events);
@@ -166,6 +165,20 @@ public class CalendarController {
         updateCalendarView();
     }
 
+
+    private void loadUserEvents(UserModel user) {
+        List<EventModel> events = user.getEvents(); // Obtenez les événements de l'utilisateur
+        for (EventModel event : events) {
+            // Ici, vous devriez intégrer chaque événement dans votre vue de calendrier
+            addEventToCalendarView(event);
+        }
+    }
+
+    private void addEventToCalendarView(EventModel event) {
+        // Convertissez votre EventModel en un format approprié et ajoutez-le à la vue de calendrier
+        // Cette partie dépend de la manière dont vous avez implémenté votre vue de calendrier
+
+    }
 
 
     private void handleFormationClaAltSelection() {
@@ -399,31 +412,59 @@ public class CalendarController {
 
         // Afficher le dialogue et attendre la réponse de l'utilisateur
         Optional<Pair<String, LocalDate>> result = dialog.showAndWait();
-
         result.ifPresent(eventDetails -> {
             String description = eventDetails.getKey();
             LocalDate date = eventDetails.getValue();
-            LocalTime startTime = LocalTime.parse(startTimeField.getText());
-            LocalTime endTime = LocalTime.parse(endTimeField.getText());
+
+            // Définir un formateur pour les heures au format "H:mm"
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H:mm");
+
+            // Utiliser le formateur pour parser les heures
+            LocalTime startTime = LocalTime.parse(startTimeField.getText(), timeFormatter);
+            LocalTime endTime = LocalTime.parse(endTimeField.getText(), timeFormatter);
             String location = locationField.getText();
             Color color = colorPicker.getValue();
 
-            // Ici, ajoutez la logique pour créer et ajouter l'événement à votre calendrier
-            System.out.println("Description: " + description + ", Date: " + date + ", Début: " + startTime + ", Fin: " + endTime + ", Lieu: " + location + ", Couleur: " + color);
-            // Attention : Cette partie doit être adaptée pour correspondre à votre modèle d'événement et la méthode d'ajout à votre vue de calendrier.
+            // Calculer la durée
+            Duration duration = Duration.between(startTime, endTime);
+            // Convertir en un format de durée lisible, par exemple, heures et minutes
+            long hours = duration.toHours();
+            long minutes = duration.minusHours(hours).toMinutes();
+            String durationStr = String.format("%dh %02dm", hours, minutes);
+
+            System.out.println("Description: " + description + ", Date: " + date + ", Début: " + startTime + ", Fin: " + endTime + ", Lieu: " + location + ", Couleur: " + color + ", Durée: " + durationStr);
+
             // Création de l'événement VEvent
             VEvent vEvent = new VEvent();
-            vEvent.setDescription(description+"\n Location : "+location);
+            vEvent.setDescription(description);
             DateTime startDateTime = new DateTime(Date.from(date.atTime(startTime).atZone(ZoneId.systemDefault()).toInstant()));
             vEvent.setDateStart(new DateStart(startDateTime));
 
             DateTime endDateTime = new DateTime(Date.from(date.atTime(endTime).atZone(ZoneId.systemDefault()).toInstant()));
             vEvent.setDateEnd(new DateEnd(endDateTime));
 
-            vEvent.setLocation(new Location(location));
+            // Configurer la propriété 'Created' et 'LastModified'
+            Date now = new Date(); // La date actuelle
+            vEvent.setCreated(now);
+            vEvent.setLastModified(now);
+
+            vEvent.setLocation(location);
+            vEvent.setColor(color.toString());
+
+            // Création de l'objet EventModel avec la durée calculée
+            EventModel eventModel = new EventModel(description, description, date.toString(), startTime.toString(), endTime.toString(), location, color.toString(), durationStr);
+
             // Ajout de l'événement à la vue de calendrier
             calendarView.addEvent(vEvent);
+            this.user.addEvent(eventModel);
             updateCalendarView();
+
+            // Mettez à jour le fichier JSON pour enregistrer les modifications
+            UserController userController = new UserController();
+            userController.addEventToUser(this.user.getUsername(), vEvent);
+
+            // Enregistrer les modifications dans le fichier users.json
+            userController.updateUser(this.user);
         });
     }
 
@@ -434,16 +475,7 @@ public class CalendarController {
 
     }
 
-    private void setTheme(String theme) {
-        URL resource = getClass().getResource(theme);
-        if (resource == null) {
-            System.err.println("Le fichier CSS n'a pas été trouvé: " + theme);
-            return;
-        }
 
-        mainContainer.getStylesheets().clear();
-        mainContainer.getStylesheets().add(resource.toExternalForm());
-    }
     @FXML
     private void toggleTheme() {
         String cssFile = !isLightTheme ? "/com/example/fxcalendar/styles/light-theme.css" : "/com/example/fxcalendar/styles/dark-theme.css";

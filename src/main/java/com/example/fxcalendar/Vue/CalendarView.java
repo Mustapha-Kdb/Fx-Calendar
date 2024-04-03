@@ -631,7 +631,5 @@ public class CalendarView {
     public void addEvent(VEvent newEvent) {
         // Ajoutez un nouvel événement à la liste des événements
         this.events.add(newEvent);
-        // Mettez à jour l'affichage pour inclure le nouvel événement
-
     }
 }

@@ -1,1 +1,47 @@
-[{"username":"ia","password":"a","role":"Etudiant","formation":"M1 IA","theme":"LIGHT"},{"username":"ilsen","password":"a","role":"Etudiant","formation":"M1 ILSEN","theme":"DARK"},{"username":"sicom","password":"a","role":"Etudiant","formation":"M1 SICOM","theme":"DARK"},{"username":"noe","password":"a","role":"Enseignant","formation":"Noe","theme":"DARK"}]
+[ {
+  "username" : "ia",
+  "password" : "a",
+  "role" : "Etudiant",
+  "formation" : "M1 IA",
+  "theme" : "LIGHT",
+  "events" : [ {
+    "title" : "exam",
+    "description" : "Examen de Machine Learning",
+    "date" : "2024-06-13",
+    "location" : "Amphi Ada",
+    "color" : "#FF0000",
+    "duration" : "3h 00m",
+    "startHour" : "09:00",
+    "endHour" : "12:00"
+  }, {
+    "title" : "dad",
+    "description" : "dad",
+    "date" : "2024-04-02",
+    "location" : "qdv",
+    "color" : "0x0000ffff",
+    "duration" : "2h 00m",
+    "startHour" : "08:00",
+    "endHour" : "10:00"
+  } ]
+}, {
+  "username" : "ilsen",
+  "password" : "a",
+  "role" : "Etudiant",
+  "formation" : "M1 ILSEN",
+  "theme" : "DARK",
+  "events" : [ ]
+}, {
+  "username" : "sicom",
+  "password" : "a",
+  "role" : "Etudiant",
+  "formation" : "M1 SICOM",
+  "theme" : "DARK",
+  "events" : [ ]
+}, {
+  "username" : "noe",
+  "password" : "a",
+  "role" : "Enseignant",
+  "formation" : "Noe",
+  "theme" : "DARK",
+  "events" : [ ]
+} ]

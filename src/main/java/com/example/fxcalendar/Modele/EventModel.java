@@ -1,26 +1,44 @@
 package com.example.fxcalendar.Modele;
 
-import biweekly.property.DateEnd;
-import biweekly.property.DateStart;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EventModel {
     private String title;
     private String description;
     private String location;
     private String date;
-    private DateStart startHour;
-
-    private DateEnd endHour;
+    private String startHour;
+    private String endHour;
     private String duration;
+    private String color;
 
-    public EventModel(String title, String description, DateStart startHour,String endHour,String location, String date, String duration) {
-        this.title = title;
+    // Constructeur par défaut
+    @JsonCreator
+    public EventModel(
+        // initialisation optionnelle
+        @JsonProperty("title") String title,
+        @JsonProperty("description") String description,
+        @JsonProperty("date") String date,
+        @JsonProperty("startTime") String startHour,
+        @JsonProperty("endTime") String endHour,
+        @JsonProperty("location") String location,
+        @JsonProperty("color") String color,
+        @JsonProperty("duration") String duration
+        )
+    {
+        this.title=title;
         this.description = description;
-        this.location = location;
-        this.date = date;
-        this.startHour = startHour;
-        this.duration = duration;
+        this.date= date;
+        this.startHour=startHour;
+        this.endHour=endHour;
+        this.location=location;
+        this.color=color;
+        this.duration=duration;
+
     }
+
+
 
     public String getTitle() {
         return title;
@@ -57,19 +75,19 @@ public class EventModel {
         this.date = date;
     }
 
-    public DateStart getStartHour() {
+    public String getStartHour() {
         return startHour;
     }
 
-    public void setStartHour(DateStart startHour) {
+    public void setStartHour(String startHour) {
         this.startHour = startHour;
     }
 
-    public DateEnd getEndHour() {
+    public String getEndHour() {
         return endHour;
     }
 
-    public void setEndHour(DateEnd endHour) {
+    public void setEndHour(String endHour) {
         this.endHour = endHour;
     }
 
@@ -83,4 +101,11 @@ public class EventModel {
     }
 
 
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
 }

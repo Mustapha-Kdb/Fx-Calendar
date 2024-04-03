@@ -3,6 +3,9 @@ package com.example.fxcalendar.Modele;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserModel {
     private String username;
     private String password;
@@ -10,13 +13,19 @@ public class UserModel {
     private String formation;
     private String theme;
 
+    private List<EventModel> events;
+
+
+
     @JsonCreator
-    public UserModel(@JsonProperty("username") String username, @JsonProperty("password") String password, @JsonProperty("role") String role, @JsonProperty("formation") String formation, @JsonProperty("theme") String theme) {
+    public UserModel(@JsonProperty("username") String username, @JsonProperty("password") String password, @JsonProperty("role") String role, @JsonProperty("formation") String formation, @JsonProperty("theme") String theme, @JsonProperty("events") List<EventModel> events) {
         this.username = username;
         this.password = password;
         this.role = role;
         this.formation = formation;
         this.theme = theme;
+        this.events = events == null ? new ArrayList<>() : events;
+
     }
 
 
@@ -63,4 +72,24 @@ public class UserModel {
     public void setTheme(String theme) {
         this.theme = theme;
     }
+
+    // Getter et setter pour events
+    public List<EventModel> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<EventModel> events) {
+        this.events = events;
+    }
+
+    public void addEvent(EventModel event) {
+        System.out.println(this+"Ajout de l'événement " + event.getTitle() + " à l'utilisateur " + this.username);
+        System.out.println(this+"L'utilisateur " + this.username + " a actuellement " + this.events.size() + " événements.");
+        System.out.println(this.events);
+        this.events.add(event);
+        System.out.println(this+"L'utilisateur " + this.username + " a maintenant " + this.events.size() + " événements.");
+        System.out.println(this.events);
+
+    }
+
 }
