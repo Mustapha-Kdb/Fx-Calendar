@@ -104,7 +104,7 @@ public class CalendarController {
         this.calendarApp = calendarApp;
     }
 
-        public void initialize(String formation, String theme) {
+        public void initialize(String formation, String theme, String role, String username) {
             textformation = formation;
             isLightTheme = theme.equals("LIGHT");
             // Initialiser la liste des suggestions de formations
@@ -363,7 +363,7 @@ public class CalendarController {
     }
     @FXML
     private void toggleTheme() {
-        String cssFile = !isLightTheme ? "/styles/light-theme.css" : "/styles/dark-theme.css";
+        String cssFile = !isLightTheme ? "@styles/light-theme.css" : "@styles/dark-theme.css";
         URL resource = getClass().getResource(cssFile);
         if (resource == null) {
             System.err.println("Le fichier CSS n'a pas été trouvé: " + cssFile);

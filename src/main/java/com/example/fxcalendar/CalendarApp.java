@@ -43,11 +43,11 @@ public class CalendarApp extends Application {
         }
     }
 
-    public void loadCalendarView(String formation, String theme) {
+    public void loadCalendarView(String formation, String theme, String role, String username) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
             Parent root = loader.load();
-            loader.<CalendarController>getController().initialize(formation, theme);
+            loader.<CalendarController>getController().initialize(formation, theme, role, username);
 
 
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();

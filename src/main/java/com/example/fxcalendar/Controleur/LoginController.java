@@ -28,8 +28,10 @@ public class LoginController {
         if (user != null) {
             // Supposons que UserModel contient maintenant des champs pour `formation` et `theme`
             String formation = user.getFormation();
-            String theme = user.getTheme(); // Assurez-vous que ces méthodes existent
-            app.loadCalendarView(formation, theme); // Modifiez cette méthode pour accepter ces paramètres
+            String theme = user.getTheme();
+            String role = user.getRole();
+            String username = user.getUsername();// Assurez-vous que ces méthodes existent
+            app.loadCalendarView(formation, theme, role, username); // Modifiez cette méthode pour accepter ces paramètres
         } else {
             loginMessage.setText("Identifiant ou mot de passe incorrect.");
         }
