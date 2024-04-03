@@ -3,9 +3,10 @@ package com.example.fxcalendar.Controleur;
 import biweekly.component.VEvent;
 import biweekly.property.DateEnd;
 import biweekly.property.DateStart;
-import biweekly.property.Location;
 import biweekly.util.DayOfWeek;
+import com.example.fxcalendar.CalendarApp;
 import com.example.fxcalendar.ICalendarReader;
+import com.example.fxcalendar.Modele.EventModel;
 import com.example.fxcalendar.Modele.UserModel;
 import com.example.fxcalendar.Vue.CalendarView;
 import javafx.application.Platform;
@@ -29,15 +30,15 @@ import net.fortuna.ical4j.model.DateTime;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CalendarController {
+    private CalendarApp app;
 
     private UserModel user;
     @FXML
@@ -85,6 +86,9 @@ public class CalendarController {
 
     public void setViewChoiceBox(String mode) {
         this.viewChoiceBox.setValue(mode);
+    }
+    public void setApp(CalendarApp app) {
+        this.app = app;
     }
 
     public YearMonth getCurrentMonth() {
@@ -169,12 +173,40 @@ public class CalendarController {
         calendarView = new CalendarView(events);
         calendarView.setCalendarController(this);
         calendarGrid.getChildren().add(calendarView.getCalendarGrid());
-//        calendarView.adjustGridPaneWidth(calendarScrollPane);
+//      calendarView.adjustGridPaneWidth(calendarScrollPane)
         viewChoiceBox.getItems().addAll("Jour", "Semaine", "Mois");
         viewChoiceBox.setValue("Semaine");
         setupNavigationButtons();
         updateCalendarView();
+
+        }
+
+
+    public void loadUserEvents(UserModel user) {
+        List<EventModel> events = user.getEvents(); // Obtenez les événements de l'utilisateur
+        String userFormation = user.getFormation();
+        //print les événements de l'utilisateur
+        System.out.println("Les événements de l'utilisateur " + user.getUsername() + " sont : ");
+        for (EventModel event : events) {
+            System.out.println(event.getDescription());
+        }
+        List<EventModel> filteredEvents = events.stream()
+                .filter(event -> event.getFormation().equals(userFormation))
+                .collect(Collectors.toList());
+
+        //print les événements à afficher
+        System.out.println("Les événements à afficher pour l'utilisateur " + user.getUsername() + " sont : ");
+        for (EventModel event : filteredEvents) {
+            System.out.println(event.getDescription());
+        }
+
+        for (EventModel event : filteredEvents) {
+            // Ici, vous devriez intégrer chaque événement dans votre vue de calendrier
+                calendarView.addEventToCalendarView(event);
+        }
     }
+
+
 
 
 
@@ -315,6 +347,7 @@ public class CalendarController {
         if(filterOption.equals("Semaine")){
             currentSemaine = currentSemaine.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
             calendarView.filterEventsWeek(currentSemaine);
+
         }
         else if(filterOption.equals("Jour")){
             calendarView.filterEventsDay(currentJour);
@@ -372,7 +405,7 @@ public class CalendarController {
         grid.setPadding(new Insets(20, 150, 10, 10));
 
         TextField titleField = new TextField();
-        titleField.setPromptText("Titre");
+        titleField.setPromptText("Description de l'événement");
         DatePicker datePicker = new DatePicker(LocalDate.now()); // La date par défaut est aujourd'hui
         TextField startTimeField = new TextField();
         startTimeField.setPromptText("Heure de début (HH:mm)");
@@ -410,65 +443,86 @@ public class CalendarController {
 
         // Afficher le dialogue et attendre la réponse de l'utilisateur
         Optional<Pair<String, LocalDate>> result = dialog.showAndWait();
-
         result.ifPresent(eventDetails -> {
             String description = eventDetails.getKey();
             LocalDate date = eventDetails.getValue();
-            LocalTime startTime = LocalTime.parse(startTimeField.getText());
-            LocalTime endTime = LocalTime.parse(endTimeField.getText());
+
+            // Définir un formateur pour les heures au format "H:mm"
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H:mm");
+
+            // Utiliser le formateur pour parser les heures
+            LocalTime startTime = LocalTime.parse(startTimeField.getText(), timeFormatter);
+            LocalTime endTime = LocalTime.parse(endTimeField.getText(), timeFormatter);
             String location = locationField.getText();
             Color color = colorPicker.getValue();
+            // Convertir la date et les heures en LocalDateTime
+            LocalDateTime eventStart = LocalDateTime.of(date, startTime);
+            LocalDateTime eventEnd = LocalDateTime.of(date, endTime);
 
-            // Ici, ajoutez la logique pour créer et ajouter l'événement à votre calendrier
-            System.out.println("Description: " + description + ", Date: " + date + ", Début: " + startTime + ", Fin: " + endTime + ", Lieu: " + location + ", Couleur: " + color);
-            // Attention : Cette partie doit être adaptée pour correspondre à votre modèle d'événement et la méthode d'ajout à votre vue de calendrier.
+            // Calculer la durée
+            Duration duration = Duration.between(startTime, endTime);
+            // Convertir en un format de durée lisible, par exemple, heures et minutes
+            long hours = duration.toHours();
+            long minutes = duration.minusHours(hours).toMinutes();
+            String durationStr = String.format("%dh %02dm", hours, minutes);
+
+            System.out.println("Description: " + description + ", Date: " + date + ", Début: " + startTime + ", Fin: " + endTime + ", Lieu: " + location + ", Couleur: " + color + ", Durée: " + durationStr);
+            // Vérifier si l'utilisateur est libre
+            if (user.isUserFree(user, eventStart, eventEnd,date)) {
             // Création de l'événement VEvent
             VEvent vEvent = new VEvent();
-            vEvent.setDescription(description+"\n Location : "+location);
+            vEvent.setDescription(description);
             DateTime startDateTime = new DateTime(Date.from(date.atTime(startTime).atZone(ZoneId.systemDefault()).toInstant()));
             vEvent.setDateStart(new DateStart(startDateTime));
 
             DateTime endDateTime = new DateTime(Date.from(date.atTime(endTime).atZone(ZoneId.systemDefault()).toInstant()));
             vEvent.setDateEnd(new DateEnd(endDateTime));
 
-            vEvent.setLocation(new Location(location));
+            // Configurer la propriété 'Created' et 'LastModified'
+            Date now = new Date(); // La date actuelle
+            vEvent.setCreated(now);
+            vEvent.setLastModified(now);
+
+            vEvent.setLocation(location);
+            vEvent.setColor(color.toString());
+
+            // Création de l'objet EventModel avec la durée calculée
+            EventModel eventModel = new EventModel(user.getUsername(),description, description+" Type : PERSONNEL", date.toString(), startTime.toString(), endTime.toString(), location, color.toString(), durationStr, user.getFormation());
+
             // Ajout de l'événement à la vue de calendrier
             calendarView.addEvent(vEvent);
-            updateCalendarView();
+            this.user.addEvent(eventModel);
+            // Mettre à jour l'affichage du calendrier si la formation courrante est la même
+            if (textformation.equals(user.getFormation())) {
+                updateCalendarView();
+            }
+
+            // Mettez à jour le fichier JSON pour enregistrer les modifications
+            UserController userController = new UserController();
+            userController.addEventToUser(this.user.getUsername(), vEvent);
+
+            // Enregistrer les modifications dans le fichier users.json
+            userController.updateUser(this.user);
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("l'"+user.getRole()+" "+user.getUsername()+" n'est pas disponible");
+                alert.setContentText("vous avez déjà un événement prévu pour cette période. Veuillez choisir une autre date ou heure.");
+                alert.showAndWait();
+            }
         });
     }
 
 
     @FXML
     public void handleLogoutButton(ActionEvent actionEvent) {
-//        try {
-//            // Remplacez "LoginView.fxml" par le chemin correct de votre fichier FXML pour l'écran de connexion.
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/fxcalendar/LoginView.fxml"));
-//            Parent root = loader.load();
-//
-//            // Obtention de la scène actuelle à partir du bouton de déconnexion et mise à jour du root.
-//            Scene scene = logoutButton.getScene();
-//            scene.setRoot(root);
-//
-//            Stage stage = (Stage) scene.getWindow();
-//            stage.setScene(scene);
-//            stage.show();
-//        } catch (IOException e) {
-//            e.printStackTrace(); // Imprimez la trace de la pile pour aider au débogage si une exception est levée.
-//        }
+
+        //retourner à la page de connexion
+        app.loadLoginView();
+
     }
 
-
-    private void setTheme(String theme) {
-        URL resource = getClass().getResource(theme);
-        if (resource == null) {
-            System.err.println("Le fichier CSS n'a pas été trouvé: " + theme);
-            return;
-        }
-
-        mainContainer.getStylesheets().clear();
-        mainContainer.getStylesheets().add(resource.toExternalForm());
-    }
     @FXML
     private void toggleTheme(ActionEvent actionEvent) {
 
@@ -488,6 +542,106 @@ public class CalendarController {
         UserController userController = new UserController();
         userController.updateUser(user);
 
+    }
+
+
+    public UserModel getUser() {
+        return user;
+    }
+    public void showEventOptionsDialog(EventModel eventModel) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Options d'événement");
+        alert.setHeaderText("Choisissez une action pour cet événement");
+        alert.setContentText("Description: " + eventModel.getDescription());
+
+        ButtonType deleteButton = new ButtonType("Supprimer");
+        ButtonType modifyButton = new ButtonType("Modifier");
+        ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(deleteButton, modifyButton, cancelButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == deleteButton) {
+            // Logique pour supprimer l'événement
+            deleteEvent(eventModel);
+        } else if (result.isPresent() && result.get() == modifyButton) {
+            // Logique pour modifier l'événement
+            modifyEvent(eventModel);
+        }
+        // Pas besoin de traiter le cas d'annulation explicitement
+    }
+
+    private void deleteEvent(EventModel eventModel) {
+        // Exemple : Supprimer l'événement de la liste des événements de l'utilisateur
+        this.user.getEvents().remove(eventModel);
+
+        // Mettre à jour le fichier JSON ou la base de données, si nécessaire
+        UserController userController = new UserController();
+        userController.deleteEventFromUser(this.user.getUsername(), eventModel);
+
+
+        // Rafraîchir l'affichage du calendrier pour refléter la suppression
+        updateCalendarView();
+    }
+
+
+    private void modifyEvent(EventModel eventModel) {
+        // Créer le dialogue de modification
+        Dialog<EventModel> dialog = new Dialog<>();
+        dialog.setTitle("Modifier l'événement");
+        dialog.setHeaderText("Modifier les détails de l'événement");
+
+        // Configurer les boutons du dialogue
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        // Ajouter des champs pour modifier les détails de l'événement, pré-remplis avec les valeurs actuelles
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField titleField = new TextField(eventModel.getTitle());
+        TextField descriptionField = new TextField(eventModel.getDescription());
+        DatePicker datePicker = new DatePicker(LocalDate.parse(eventModel.getDate()));
+        TextField startTimeField = new TextField(eventModel.getStartHour());
+        TextField endTimeField = new TextField(eventModel.getEndHour());
+        TextField locationField = new TextField(eventModel.getLocation());
+        ColorPicker colorPicker = new ColorPicker(Color.valueOf(eventModel.getColor()));
+
+        grid.add(new Label("Titre:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Label("Description:"), 0, 1);
+        grid.add(descriptionField, 1, 1);
+        grid.add(new Label("Date:"), 0, 2);
+        grid.add(datePicker, 1, 2);
+        grid.add(new Label("Heure de début:"), 0, 3);
+        grid.add(startTimeField, 1, 3);
+        grid.add(new Label("Heure de fin:"), 0, 4);
+        grid.add(endTimeField, 1, 4);
+        grid.add(new Label("Lieu:"), 0, 5);
+        grid.add(locationField, 1, 5);
+        grid.add(new Label("Couleur:"), 0, 6);
+        grid.add(colorPicker, 1, 6);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Convertir le résultat en EventModel quand l'utilisateur clique sur OK
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == ButtonType.OK) {
+                return new EventModel(user.getUsername(), titleField.getText(), descriptionField.getText(), datePicker.getValue().toString(), startTimeField.getText(), endTimeField.getText(), locationField.getText(), colorPicker.getValue().toString(), "", eventModel.getFormation());
+            }
+            return null;
+        });
+
+        Optional<EventModel> result = dialog.showAndWait();
+
+        // Mise à jour de l'événement avec les nouvelles valeurs saisies par l'utilisateur
+        result.ifPresent(newEventModel -> {
+            UserController userController = new UserController();
+            userController.updateEventForUser(this.user.getUsername(), newEventModel);
+            // Mettre à jour l'affichage du calendrier
+            updateCalendarView();
+        });
     }
 
 

@@ -2,6 +2,7 @@ package com.example.fxcalendar.Vue;
 
 import biweekly.component.VEvent;
 import com.example.fxcalendar.Controleur.CalendarController;
+import com.example.fxcalendar.Modele.EventModel;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -397,7 +398,6 @@ public class CalendarView {
                 for (String[] enseignant : enseignants) {
                     if (noms.length() > 0) noms.append(", ");
                     noms.append(enseignant[0]);
-
                     if (emails.length() > 0) emails.append(",");
                     emails.append(enseignant[1]);
                 }
@@ -431,12 +431,20 @@ public class CalendarView {
                 VBox.setMargin(eventBox, new Insets(2)); // Adjust as needed
 
                 calendarGrid.add(eventBox, columnIndex, startRowIndex); // Add the event box to the grid
+
             }
         }
+        if(calendarController.getUser().getFormation().equals(calendarController.getTextformation()))
+            calendarController.loadUserEvents(calendarController.getUser());
     }
 
     private String stylishEventBox(String type) {
         String color = "#ee974b"; // Default color
+        //exemple pour parser la couleur type="personnel/blue"
+        String[] parts = type.split("/");
+        type = parts[0];
+        //switch color from par ex "personnel/0xf00" to "#f44336"
+        String color1 = parts.length > 1 ? convertHexToCssColor(parts[1]) : "#f44336";
         switch (type.toLowerCase()) {
             case "cours":
                 color = "#f4a261"; // Orange
@@ -453,12 +461,37 @@ public class CalendarView {
             case "evaluation":
                 color = "#CF4146"; // Red
                 break;
+            case "personnel":
+                color = color1; // Purple
+                break;
             default:
                 color = "#f4a261"; // Grey
                 break;
         }
 
+
+
         return "-fx-background-color: " + color + "; -fx-border-color: #000000; -fx-border-width: 0.3px; -fx-background-radius: 7px; -fx-border-radius: 7px;";
+    }
+
+    // Méthode pour convertir une valeur hexadécimale en couleur CSS
+    private String convertHexToCssColor(String hex) {
+        // Supprimer le préfixe "0x" si présent
+        if (hex.startsWith("0x")) {
+            hex = hex.substring(2);
+        }
+
+        // Ajouter un préfixe "#" si absent
+        if (!hex.startsWith("#")) {
+            hex = "#" + hex;
+        }
+
+        // Si la longueur de la chaîne est inférieure à 7, ajouter des zéros à gauche pour obtenir une chaîne de 7 caractères
+        while (hex.length() < 7) {
+            hex = hex.substring(0, 1) + "0" + hex.substring(1);
+        }
+
+        return hex;
     }
 
     private String getTypesFromDescription(String description) {
@@ -700,7 +733,73 @@ public class CalendarView {
     public void addEvent(VEvent newEvent) {
         // Ajoutez un nouvel événement à la liste des événements
         this.events.add(newEvent);
-        // Mettez à jour l'affichage pour inclure le nouvel événement
+    }
+    public void addEventToCalendarView(EventModel eventModel) {
+        // Convertir la date de l'événement en LocalDate
+        LocalDate eventDate = LocalDate.parse(eventModel.getDate(), DateTimeFormatter.ISO_LOCAL_DATE);
 
+        // Convertir le début et la fin de l'événement en LocalTime
+        LocalTime startTime = LocalTime.parse(eventModel.getStartHour(), DateTimeFormatter.ofPattern("HH:mm"));
+        LocalTime endTime = LocalTime.parse(eventModel.getEndHour(), DateTimeFormatter.ofPattern("HH:mm"));
+        LocalDate semaine = this.calendarController.getCurrentSemaine();
+        if (eventDate.isAfter(semaine.minusDays(1)) && eventDate.isBefore(semaine.plusDays(5))) {
+            int columnIndex = (int) ChronoUnit.DAYS.between(semaine, eventDate) + 1; // Calculate the column index for the event
+            int startHour = Math.max(startTime.getHour(), 8);
+            int startRowIndex = (startHour - 8) * 2 + (startTime.getMinute() >= 30 ? 1 : 0) + 1;
+            startRowIndex = Math.max(startRowIndex, 1);
+
+            // Calculate the ending row based on the end time
+            int endHour = Math.min(endTime.getHour(), 19); // End at 7 PM if event ends after 7 PM
+            int endRowIndex = (endHour - 8) * 2 + (endTime.getMinute() == 30 ? 1 : 0);
+            // Ensure endRowIndex is within bounds
+            endRowIndex = Math.min(endRowIndex, 23); // Assuming grid has 24 half-hour rows
+
+            // Calculate the number of half-hour slots to span
+            int durationInHalfHours = endRowIndex - startRowIndex + 1;
+
+            // Ensure durationInHalfHours is positive
+            durationInHalfHours = Math.max(durationInHalfHours, 1); // At least one half-hour slot
+            if (durationInHalfHours == 1) {
+                durationInHalfHours = 24 - 2;
+            }
+            // String summary = event.getSummary() != null ? event.getSummary().getValue() : "No summary provided";
+            String description = eventModel.getDescription() != null ? eventModel.getDescription() : "Jour Férié";
+            String type = getTypesFromDescription(description)+"/"+eventModel.getColor();
+            System.out.println(type);
+            // Create the event box and style it
+            String displayText = String.format("%s", description);
+            Text eventText = new Text(displayText);
+            eventText.setWrappingWidth(200); // Wrap text within the specified width
+
+            eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
+            VBox eventBox = new VBox(eventText);
+            // make the border radius of the event box and the color only covering the box
+            String eventBoxStyle = stylishEventBox(type);
+            eventBox.setStyle(eventBoxStyle);
+            // inner margin for the text inside the event box
+            eventBox.setPadding(new Insets(5));
+            // inner margin for the event box inside the grid cell
+            // Création d'une infobulle avec le contenu complet de l'événement
+            String tooltipText = String.format("Description: %s", description);
+            Tooltip tooltip = new Tooltip(tooltipText);
+            Tooltip.install(eventBox, tooltip);
+            // Ajuster la durée pour que la Tooltip ne se cache pas automatiquement
+            tooltip.setShowDuration(Duration.INDEFINITE);
+
+
+            // Cette méthode nécessite JavaFX 9 ou supérieur
+            tooltip.setShowDelay(Duration.millis(100)); // Délai avant d'afficher la Tooltip
+            GridPane.setRowIndex(eventBox, startRowIndex);
+            GridPane.setRowSpan(eventBox, durationInHalfHours);
+            GridPane.setMargin(eventBox, new Insets(2));
+            // Add a small gap between events
+            VBox.setMargin(eventBox, new Insets(2)); // Adjust as needed
+            eventBox.setOnMouseClicked(mouseEvent -> {
+                // Appel à showEventOptionsDialog avec l'EventModel
+                calendarController.showEventOptionsDialog(eventModel);
+            });
+
+                calendarGrid.add(eventBox, columnIndex, startRowIndex); // Add the event box to the grid
+        }
     }
 }

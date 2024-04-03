@@ -1,1 +1,99 @@
-[{"username":"ia","password":"a","role":"Etudiant","formation":"M1 IA","theme":"LIGHT"},{"username":"ilsen","password":"a","role":"Etudiant","formation":"M1 ILSEN","theme":"DARK"},{"username":"sicom","password":"a","role":"Etudiant","formation":"M1 SICOM","theme":"DARK"},{"username":"noe","password":"a","role":"Enseignant","formation":"Noe","theme":"LIGHT"}]
+[ {
+  "username" : "ia",
+  "password" : "a",
+  "role" : "Etudiant",
+  "formation" : "M1 IA",
+  "theme" : "LIGHT",
+  "events" : [ {
+    "id" : "ia",
+    "title" : "ayoub",
+    "description" : "ayoub Type : PERSONNEL",
+    "date" : "2024-04-03",
+    "location" : "add",
+    "color" : "0x0000ffff",
+    "duration" : "1h 00m",
+    "formation" : "M1 IA",
+    "startHour" : "12:00",
+    "endHour" : "13:00"
+  }, {
+    "id" : "ia",
+    "title" : "jean",
+    "description" : "jean Type : PERSONNEL",
+    "date" : "2024-04-04",
+    "location" : "dad",
+    "color" : "0x0000ffff",
+    "duration" : "1h 00m",
+    "formation" : "M1 IA",
+    "startHour" : "08:00",
+    "endHour" : "09:00"
+  }, {
+    "id" : "ia",
+    "title" : "essay",
+    "description" : "essay Type : PERSONNEL",
+    "date" : "2024-04-04",
+    "location" : "ada",
+    "color" : "0x0000ffff",
+    "duration" : "0h 30m",
+    "formation" : "M1 IA",
+    "startHour" : "16:00",
+    "endHour" : "16:30"
+  }, {
+    "id" : "ia",
+    "title" : "dazkj",
+    "description" : "dazkj Type : PERSONNEL",
+    "date" : "2024-04-03",
+    "location" : "ada",
+    "color" : "0x0000ffff",
+    "duration" : "1h 00m",
+    "formation" : "M1 IA",
+    "startHour" : "08:00",
+    "endHour" : "09:00"
+  } ],
+  "id" : null
+}, {
+  "username" : "ilsen",
+  "password" : "a",
+  "role" : "Etudiant",
+  "formation" : "M1 ILSEN",
+  "theme" : "LIGHT",
+  "events" : [ {
+    "id" : null,
+    "title" : "test event",
+    "description" : "test event Type : PERSONNEL",
+    "date" : "2024-04-03",
+    "location" : "adz",
+    "color" : "0xffff00ff",
+    "duration" : "1h 00m",
+    "formation" : "M1 ILSEN",
+    "startHour" : "08:00",
+    "endHour" : "09:00"
+  } ],
+  "id" : null
+}, {
+  "username" : "sicom",
+  "password" : "a",
+  "role" : "Etudiant",
+  "formation" : "M1 SICOM",
+  "theme" : "DARK",
+  "events" : [ ],
+  "id" : "ilsen"
+}, {
+  "username" : "noe",
+  "password" : "a",
+  "role" : "Enseignant",
+  "formation" : "NOE",
+  "theme" : "LIGHT",
+  "events" : [ {
+    "id" : "noe",
+    "title" : "reservation",
+    "description" : "reservation Type : PERSONNEL",
+    "date" : "2024-04-03",
+    "location" : "ayoub",
+    "color" : "0xffff00ff",
+    "duration" : "1h 00m",
+    "formation" : "NOE",
+    "startHour" : "15:00",
+    "endHour" : "16:00"
+  } ],
+  "id" : null
+} ]

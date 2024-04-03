@@ -1,7 +1,6 @@
 package com.example.fxcalendar.Controleur;
 
 import com.example.fxcalendar.CalendarApp;
-import com.example.fxcalendar.Controleur.UserController;
 import com.example.fxcalendar.Modele.UserModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -15,9 +14,12 @@ import java.awt.event.KeyEvent;
 import java.util.Locale;
 
 public class LoginController {
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private Label loginMessage;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private Label loginMessage;
 
     private UserController userController = new UserController();
     private CalendarApp app; // Ajout de cette ligne
@@ -43,5 +45,10 @@ public class LoginController {
         passwordField.setOnAction(event -> handleLogin());
     }
 
+    public void resetView() {
+        usernameField.setText("");
+        passwordField.setText("");
+        loginMessage.setText("");
+    }
 }
 
