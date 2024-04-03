@@ -1,5 +1,8 @@
 package com.example.fxcalendar.Modele;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserModel {
     private String username;
     private String password;
@@ -7,10 +10,8 @@ public class UserModel {
     private String formation;
     private String theme;
 
-    public UserModel() {
-        // Ceci est nécessaire pour la désérialisation JSON
-    }
-    public UserModel(String username, String password, String role, String formation, String theme) {
+    @JsonCreator
+    public UserModel(@JsonProperty("username") String username, @JsonProperty("password") String password, @JsonProperty("role") String role, @JsonProperty("formation") String formation, @JsonProperty("theme") String theme) {
         this.username = username;
         this.password = password;
         this.role = role;
@@ -18,11 +19,16 @@ public class UserModel {
         this.theme = theme;
     }
 
+
+
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
+        if(username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Le nom d'utilisateur ne peut pas être vide");
+        }
         this.username = username;
     }
 

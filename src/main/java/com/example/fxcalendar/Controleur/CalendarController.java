@@ -1,26 +1,40 @@
 package com.example.fxcalendar.Controleur;
 
+import biweekly.component.VEvent;
+import biweekly.property.DateEnd;
+import biweekly.property.DateStart;
+import biweekly.property.Location;
 import biweekly.util.DayOfWeek;
-import com.example.fxcalendar.CalendarApp;
 import com.example.fxcalendar.ICalendarReader;
+import com.example.fxcalendar.Modele.UserModel;
 import com.example.fxcalendar.Vue.CalendarView;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.util.Pair;
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateTime;
 
+import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Optional;
 
 public class CalendarController {
-    private CalendarApp calendarApp;
 
+    private UserModel user;
     @FXML
     public ChoiceBox<String> FormationClaAlt;
     @FXML
@@ -33,6 +47,9 @@ public class CalendarController {
     private Button previousButton;
     @FXML
     private Button nextButton;
+    @FXML
+    private VBox mainContainer; // Assurez-vous que l'ID correspond à celui de votre FXML
+    private boolean isLightTheme; // Un indicateur pour suivre le thème actuel
 
     @FXML
     private ChoiceBox<String> viewChoiceBox;
@@ -94,13 +111,13 @@ public class CalendarController {
         this.currentJour = currentJour;
     }
 
-    public void setCalendarApp(CalendarApp calendarApp) {
-        this.calendarApp = calendarApp;
-    }
 
 
-        public void initialize(String formation) {
-            textformation = formation;
+        public void initialize(UserModel user) {
+            this.user = user;
+            textformation = user.getFormation();
+            String formation = textformation;
+            isLightTheme = user.getTheme().equals("LIGHT");
             // Initialiser la liste des suggestions de formations
             ObservableList<String> filters = FXCollections.observableArrayList(
                     "--par formation--" , "M1 IA", "M1 ILSEN", "M1 SICOM",
@@ -142,17 +159,21 @@ public class CalendarController {
         calendarView = new CalendarView(events);
         calendarView.setCalendarController(this);
         calendarGrid.getChildren().add(calendarView.getCalendarGrid());
+//        calendarView.adjustGridPaneWidth(calendarScrollPane);
         viewChoiceBox.getItems().addAll("Jour", "Semaine", "Mois");
         viewChoiceBox.setValue("Semaine");
         setupNavigationButtons();
         updateCalendarView();
     }
 
+
+
     private void handleFormationClaAltSelection() {
         // Mettre à jour la valeur de textformation avec la formation sélectionnée concaténée avec Cla ou Alt
         textformation = FormationSwitch.getValue() ;
         // afficher le choix de filtre dans le log console
         System.out.println("Formation : " + textformation);
+        FormationFilter.setValue("--par matière--");
 
         ICalendarReader calendarReader = new ICalendarReader();
         List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
@@ -181,10 +202,12 @@ public class CalendarController {
         private void handleFormationSelection(ObservableList<String> filtresIA, ObservableList<String> filtresSICOM, ObservableList<String> filtresILSEN) {
             // Mettre à jour la valeur de textformation avec la formation sélectionnée
             textformation = FormationSwitch.getValue();
+
+            System.out.println("Formation : " + textformation);
             boolean isFormation = textformation.equals("M1 IA") || textformation.equals("M1 SICOM") || textformation.equals("M1 ILSEN");
             FormationFilter.setDisable(!isFormation);
             FormationClaAlt.setDisable(!isFormation);
-            if(!FormationClaAlt.isDisabled()){
+            if (!FormationClaAlt.isDisabled()) {
                 FormationClaAlt.setValue("CLA");
             }
             // afficher le choix de filtre dans le log console
@@ -321,34 +344,124 @@ public class CalendarController {
         }
         applyFilter();
     }
-
+    @FXML
     public void handleAddEventButton(ActionEvent actionEvent) {
+        // Créer le dialogue
+        Dialog<Pair<String, LocalDate>> dialog = new Dialog<>();
+        dialog.setTitle("Ajouter un nouvel événement");
+        dialog.setHeaderText("Saisissez les détails de l'événement");
 
+        // Ajouter des boutons
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        // Créer les champs de saisie
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField titleField = new TextField();
+        titleField.setPromptText("Titre");
+        DatePicker datePicker = new DatePicker(LocalDate.now()); // La date par défaut est aujourd'hui
+        TextField startTimeField = new TextField();
+        startTimeField.setPromptText("Heure de début (HH:mm)");
+        TextField endTimeField = new TextField();
+        endTimeField.setPromptText("Heure de fin (HH:mm)");
+        TextField locationField = new TextField();
+        locationField.setPromptText("Lieu");
+        ColorPicker colorPicker = new ColorPicker(Color.BLUE); // Couleur par défaut
+
+        grid.add(new Label("Titre:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Label("Date:"), 0, 1);
+        grid.add(datePicker, 1, 1);
+        grid.add(new Label("Heure de début:"), 0, 2);
+        grid.add(startTimeField, 1, 2);
+        grid.add(new Label("Heure de fin:"), 0, 3);
+        grid.add(endTimeField, 1, 3);
+        grid.add(new Label("Lieu:"), 0, 4);
+        grid.add(locationField, 1, 4);
+        grid.add(new Label("Couleur:"), 0, 5);
+        grid.add(colorPicker, 1, 5);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Demande de mise au point initiale sur le champ du titre
+        Platform.runLater(() -> titleField.requestFocus());
+
+        // Convertir les résultats lorsque le bouton OK est cliqué.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == ButtonType.OK) {
+                return new Pair<>(titleField.getText(), datePicker.getValue());
+            }
+            return null;
+        });
+
+        // Afficher le dialogue et attendre la réponse de l'utilisateur
+        Optional<Pair<String, LocalDate>> result = dialog.showAndWait();
+
+        result.ifPresent(eventDetails -> {
+            String description = eventDetails.getKey();
+            LocalDate date = eventDetails.getValue();
+            LocalTime startTime = LocalTime.parse(startTimeField.getText());
+            LocalTime endTime = LocalTime.parse(endTimeField.getText());
+            String location = locationField.getText();
+            Color color = colorPicker.getValue();
+
+            // Ici, ajoutez la logique pour créer et ajouter l'événement à votre calendrier
+            System.out.println("Description: " + description + ", Date: " + date + ", Début: " + startTime + ", Fin: " + endTime + ", Lieu: " + location + ", Couleur: " + color);
+            // Attention : Cette partie doit être adaptée pour correspondre à votre modèle d'événement et la méthode d'ajout à votre vue de calendrier.
+            // Création de l'événement VEvent
+            VEvent vEvent = new VEvent();
+            vEvent.setDescription(description+"\n Location : "+location);
+            DateTime startDateTime = new DateTime(Date.from(date.atTime(startTime).atZone(ZoneId.systemDefault()).toInstant()));
+            vEvent.setDateStart(new DateStart(startDateTime));
+
+            DateTime endDateTime = new DateTime(Date.from(date.atTime(endTime).atZone(ZoneId.systemDefault()).toInstant()));
+            vEvent.setDateEnd(new DateEnd(endDateTime));
+
+            vEvent.setLocation(new Location(location));
+            // Ajout de l'événement à la vue de calendrier
+            calendarView.addEvent(vEvent);
+            updateCalendarView();
+        });
     }
 
-    public void handleSearchEventButton(ActionEvent actionEvent) {
-    }
 
-    public void handlePlanningButton(ActionEvent actionEvent) {
-    }
 
     public void handleLogoutButton(ActionEvent actionEvent) {
+        //retourner à la page de connexion
+
     }
 
-    public void handleExitButton(ActionEvent actionEvent) {
-    }
-
-    public void handleHelpButton(ActionEvent actionEvent) {
-    }
-
-    public void handleAboutButton(ActionEvent actionEvent) {
-    }
-
-    @FXML
-    public void toggleTheme(ActionEvent actionEvent) {
-        if (calendarApp != null) {
-            calendarApp.toggleTheme();
+    private void setTheme(String theme) {
+        URL resource = getClass().getResource(theme);
+        if (resource == null) {
+            System.err.println("Le fichier CSS n'a pas été trouvé: " + theme);
+            return;
         }
+
+        mainContainer.getStylesheets().clear();
+        mainContainer.getStylesheets().add(resource.toExternalForm());
+    }
+    @FXML
+    private void toggleTheme() {
+        String cssFile = !isLightTheme ? "/com/example/fxcalendar/styles/light-theme.css" : "/com/example/fxcalendar/styles/dark-theme.css";
+        URL resourceUrl = this.getClass().getResource(cssFile);
+        if (resourceUrl == null) {
+            System.err.println("Le fichier CSS n'a pas été trouvé: " + cssFile);
+            return;
+        }
+        String resource = resourceUrl.toExternalForm();
+        mainContainer.getStylesheets().clear();
+        mainContainer.getStylesheets().add(resource);
+        isLightTheme = !isLightTheme;
+        // Mettre à jour le thème dans le fichier de configuration JSon users.json
+        this.user.setTheme(isLightTheme ? "LIGHT" : "DARK");
+        // Enregistrer les modifications dans le fichier users.json
+        UserController userController = new UserController();
+        userController.updateUser(user);
+
     }
 
 

@@ -13,16 +13,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CalendarView {
@@ -162,7 +169,28 @@ public class CalendarView {
     public void displayEventsParSemaine(List<biweekly.component.VEvent> events, LocalDate semaine) {
         // Clear the GridPane before adding new events
         calendarGrid.getChildren().clear();
+        calendarGrid.getColumnConstraints().clear(); // Effacer les contraintes de colonne existantes
+        calendarGrid.getRowConstraints().clear(); // Effacer aussi les contraintes de ligne existantes
 
+
+        // Définir les contraintes pour la colonne des heures à 50px
+        ColumnConstraints hourColumnConstraints = new ColumnConstraints(80, 80, 80); // minWidth, prefWidth, maxWidth
+        calendarGrid.getColumnConstraints().add(hourColumnConstraints);
+
+        // Définir les contraintes pour les colonnes des jours (Lundi à Vendredi) à 400px
+        for (int i = 0; i < 5; i++) {
+            ColumnConstraints dayColumnConstraints = new ColumnConstraints(250, 250, 250); // minWidth, prefWidth, maxWidth
+            dayColumnConstraints.setHgrow(Priority.ALWAYS); // Permettre à ces colonnes de s'étendre si nécessaire
+            calendarGrid.getColumnConstraints().add(dayColumnConstraints);
+        }
+        // Configuration des contraintes de ligne pour fixer la hauteur de chaque demi-heure à 20px
+        for (int i = 0; i < (19 - 8) * 2 + 3; i++) { // Pour chaque demi-heure de 8h à 19h
+            RowConstraints rowConstraints = new RowConstraints();
+            rowConstraints.setPrefHeight(20); // Définir la hauteur préférée à 20px
+            rowConstraints.setPercentHeight(100.0 / 25);
+            rowConstraints.setValignment(VPos.CENTER); // Centrer le contenu verticalement
+            calendarGrid.getRowConstraints().add(rowConstraints);
+        }
         // Add headers for days at the top row, column 1-5
         for (int i = 0; i < 5; i++) { // Monday to Friday
             LocalDate dayDate = semaine.plusDays(i);
@@ -226,15 +254,7 @@ public class CalendarView {
         }
 
 
-// Ajuster la hauteur de la rangée pour les heures dans la vue par semaine
-// S'il y a 24 demi-heures dans la journée, alors chaque demi-heure a une hauteur de 100 / 24 % de la hauteur totale du `GridPane`
-        calendarGrid.getRowConstraints().clear(); // Effacez d'abord les contraintes existantes si nécessaire
-        for (int i = 0; i < 23; i++) {
-            RowConstraints rowConstraints = new RowConstraints();
-            rowConstraints.setPercentHeight(100.0 / 24);
-            rowConstraints.setValignment(VPos.CENTER); // Centrer le contenu verticalement
-            calendarGrid.getRowConstraints().add(rowConstraints);
-        }
+
 
 
         // Sort events by start time
@@ -266,10 +286,12 @@ public class CalendarView {
                 // Ensure durationInHalfHours is positive
                 durationInHalfHours = Math.max(durationInHalfHours, 1); // At least one half-hour slot
                 if (durationInHalfHours == 1) {
-                    durationInHalfHours = totalHalfHourSlots;
+                    durationInHalfHours = totalHalfHourSlots-2;
                 }
                 // String summary = event.getSummary() != null ? event.getSummary().getValue() : "No summary provided";
-                String description = event.getDescription() != null ? event.getDescription().getValue() : "No description provided";
+                String description = event.getDescription() != null ? event.getDescription().getValue() : "Jour Férié";
+                String type = getTypesFromDescription(description);
+                System.out.println(type);
                 // Create the event box and style it
                 String displayText = String.format("%s", description);
                 Text eventText = new Text(displayText);
@@ -277,11 +299,61 @@ public class CalendarView {
 
                 eventText.setStyle("-fx-font-size: 10;"); // Set the font size if necessary
                 VBox eventBox = new VBox(eventText);
+
                 // make the border radius of the event box and the color only covering the box
-                eventBox.setStyle("-fx-background-color: #ee974b; -fx-border-color: #000000; -fx-border-width: 0.3px; -fx-background-radius: 7px; -fx-border-radius: 7px;");
+                String eventBoxStyle = stylishEventBox(type);
+                eventBox.setStyle(eventBoxStyle);
                 // inner margin for the text inside the event box
                 eventBox.setPadding(new Insets(5));
                 // inner margin for the event box inside the grid cell
+
+                // Création d'une infobulle avec le contenu complet de l'événement
+                String tooltipText = String.format("Description: %s", description);
+                Tooltip tooltip = new Tooltip(tooltipText);
+                Tooltip.install(eventBox, tooltip);
+                // Ajuster la durée pour que la Tooltip ne se cache pas automatiquement
+                tooltip.setShowDuration(Duration.INDEFINITE);
+
+                // Cette méthode nécessite JavaFX 9 ou supérieur
+                tooltip.setShowDelay(Duration.millis(100)); // Délai avant d'afficher la Tooltip
+
+
+                List<String[]> enseignants = getNomsEnseignantsFromDescription(description);
+
+
+                // Pour l'affichage et l'envoi d'e-mails groupés
+                StringBuilder noms = new StringBuilder();
+                StringBuilder emails = new StringBuilder();
+
+                for (String[] enseignant : enseignants) {
+                    if (noms.length() > 0) noms.append(", ");
+                    noms.append(enseignant[0]);
+
+                    if (emails.length() > 0) emails.append(",");
+                    emails.append(enseignant[1]);
+                }
+
+                String enseignantNoms = noms.toString();
+                String enseignantEmails = emails.toString();
+
+                System.out.println(enseignantNoms + " <" + enseignantEmails + ">");
+
+                String subject = "Sujet de l'email";
+                String body = "Corps de l'email. Rendez-vous concernant: " ;
+                if (!enseignants.isEmpty() && !"Inconnu".equals(enseignants.get(0)[0]))
+                    eventBox.setOnMouseClicked(mouseEvent -> {
+                    try {
+                        // Encoder les valeurs de subject et body
+                        String encodedSubject = URLEncoder.encode(subject, StandardCharsets.UTF_8);
+                        String encodedBody = URLEncoder.encode(body, StandardCharsets.UTF_8);
+
+                        String mailto = "mailto:" + enseignantEmails + "?subject=" + encodedSubject + "&body=" + encodedBody;
+                        // Utiliser Desktop pour ouvrir le client de messagerie avec l'URI mailto
+                        java.awt.Desktop.getDesktop().mail(new URI(mailto));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    });
 
                 GridPane.setRowIndex(eventBox, startRowIndex);
                 GridPane.setRowSpan(eventBox, durationInHalfHours);
@@ -294,11 +366,91 @@ public class CalendarView {
         }
     }
 
+    private String stylishEventBox(String type) {
+        String color = "#ee974b"; // Default color
+        switch (type.toLowerCase()) {
+            case "cours":
+                color = "#ee974b"; // Orange
+                break;
+            case "td":
+                color = "#4caf50"; // Green
+                break;
+            case "tp":
+                color = "#2196f3"; // Blue
+                break;
+                case "cm/td":
+                color = "#2196f3"; // Blue
+                break;
+            case "evaluation":
+                color = "#f44336"; // Red
+                break;
+            default:
+                color = "#9e9e9e"; // Grey
+                break;
+        }
+
+        return "-fx-background-color: " + color + "; -fx-border-color: #000000; -fx-border-width: 0.3px; -fx-background-radius: 7px; -fx-border-radius: 7px;";
+    }
+
+    private String getTypesFromDescription(String description) {
+        // Utiliser une expression régulière pour extraire la ligne contenant les types de séances
+        Pattern pattern = Pattern.compile("Type\\s*:\\s*(.*)");
+        Matcher matcher = pattern.matcher(description);
+
+        // Si l'expression trouve une correspondance, extraire la liste des types de séances
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+
+        return "Type inconnu";
+    }
+
+    private List<String[]>  getNomsEnseignantsFromDescription(String description) {
+        // Liste pour stocker les noms d'enseignants formatés
+        List<String[]>  enseignants = new ArrayList<>();
+
+        // Utiliser une expression régulière pour extraire la ligne contenant les noms des enseignants
+        Pattern pattern = Pattern.compile("Enseignants?\\s*:\\s*(.*)");
+        Matcher matcher = pattern.matcher(description);
+
+        // Si l'expression trouve une correspondance, extrayez la liste des enseignants
+        if (matcher.find()) {
+            // Séparer les noms des enseignants par virgule
+            String[] noms = matcher.group(1).trim().split(",");
+
+            // Formater chaque nom et l'ajouter à la liste
+            for (String nom : noms) {
+                String nomEmail = nom.trim().toLowerCase().replaceAll("\\s+", "."); // Remplacer les espaces par des points
+                enseignants.add(new String[]{nom, nomEmail + "@univ-avignon.fr"});
+            }
+        }
+
+        if (enseignants.isEmpty()) {
+            enseignants.add(new String[]{"Inconnu", "Inconnu"});
+        }
+        // Retourner la liste des enseignants formatés
+        return enseignants;
+    }
+
+
+
     // displayEventsParJour
     public void displayEventsParJour(List<biweekly.component.VEvent> events, LocalDate jour) {
         // Clear the GridPane before adding new events
         calendarGrid.getChildren().clear();
-//        calendarGrid.getColumnConstraints().clear(); // Clear existing column constraints
+        calendarGrid.getColumnConstraints().clear(); // Clear existing column constraints
+
+        // Définir les contraintes pour la colonne des heures
+        ColumnConstraints hourColumnConstraints = new ColumnConstraints(80, 80, 80); // minWidth, prefWidth, maxWidth
+        hourColumnConstraints.setHgrow(Priority.NEVER); // La colonne des heures ne doit pas s'étendre
+        calendarGrid.getColumnConstraints().add(hourColumnConstraints);
+
+        // Définir les contraintes pour les autres colonnes (400px)
+        ColumnConstraints eventColumnConstraints = new ColumnConstraints(400, 400, Double.MAX_VALUE); // minWidth, prefWidth, maxWidth
+        eventColumnConstraints.setHgrow(Priority.ALWAYS); // Permettre à ces colonnes de s'étendre si nécessaire
+        // Ajouter les contraintes pour chaque colonne des événements. Supposons qu'il y en ait une seule pour cet exemple.
+        calendarGrid.getColumnConstraints().add(eventColumnConstraints);
+
 
         // Add headers for day at the top row, column 1
         String dayLabel = jour.format(DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy", Locale.FRANCE));
@@ -309,10 +461,6 @@ public class CalendarView {
         calendarGrid.add(dayHeader, 1, 0);
 
 
-        // Set column constraints to make the event column occupy the entire width
-        ColumnConstraints eventColumnConstraints = new ColumnConstraints();
-        eventColumnConstraints.setPercentWidth(100);
-        calendarGrid.getColumnConstraints().add(eventColumnConstraints);
 
 
         // Add hours label column
@@ -477,5 +625,13 @@ public class CalendarView {
                 .collect(Collectors.toList());
         YearMonth currentMonth = YearMonth.from(startOfMonth);
         displayEventsParMois(monthEvents, currentMonth);
+    }
+
+
+    public void addEvent(VEvent newEvent) {
+        // Ajoutez un nouvel événement à la liste des événements
+        this.events.add(newEvent);
+        // Mettez à jour l'affichage pour inclure le nouvel événement
+
     }
 }

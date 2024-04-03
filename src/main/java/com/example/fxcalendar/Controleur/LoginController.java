@@ -27,9 +27,7 @@ public class LoginController {
         UserModel user = userController.authenticate(usernameField.getText().toLowerCase(Locale.ROOT), passwordField.getText().toLowerCase());
         if (user != null) {
             // Supposons que UserModel contient maintenant des champs pour `formation` et `theme`
-            String formation = user.getFormation();
-            String theme = user.getTheme(); // Assurez-vous que ces méthodes existent
-            app.loadCalendarView(formation, theme); // Modifiez cette méthode pour accepter ces paramètres
+            app.loadCalendarView(user); // Modifiez cette méthode pour accepter ces paramètres
         } else {
             loginMessage.setText("Identifiant ou mot de passe incorrect.");
         }
