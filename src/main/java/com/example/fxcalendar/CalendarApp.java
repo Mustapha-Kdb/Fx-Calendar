@@ -2,6 +2,7 @@ package com.example.fxcalendar;
 
 import com.example.fxcalendar.Controleur.CalendarController;
 import com.example.fxcalendar.Controleur.LoginController;
+import com.example.fxcalendar.Modele.UserModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -43,12 +44,14 @@ public class CalendarApp extends Application {
         }
     }
 
-    public void loadCalendarView(String formation, String theme, String role, String username) {
+
+    public void loadCalendarView(UserModel user) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
             Parent root = loader.load();
-            loader.<CalendarController>getController().initialize(formation, theme, role, username);
-
+            loader.<CalendarController>getController().initialize(user);
+            String theme=user.getTheme();
+            String formation=user.getFormation();
 
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             scene.setRoot(root);
@@ -71,4 +74,5 @@ public class CalendarApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    //on close enregistre le theme dans le fichier json
 }

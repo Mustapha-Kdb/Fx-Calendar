@@ -2,8 +2,8 @@ package com.example.fxcalendar.Controleur;
 
 import com.example.fxcalendar.Modele.UserModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserController {
@@ -29,6 +29,23 @@ public class UserController {
             }
         }
         return null;
+    }
+
+    public void updateUser(UserModel user) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<UserModel> updatedUsers = objectMapper.readValue(new File("src/main/resources/users.json"), objectMapper.getTypeFactory().constructCollectionType(List.class, UserModel.class));
+            for (int i = 0; i < updatedUsers.size(); i++) {
+                if (updatedUsers.get(i).getUsername().equals(user.getUsername())) {
+                    updatedUsers.set(i, user);
+                    break;
+                }
+            }
+            objectMapper.writeValue(new File("src/main/resources/users.json"), updatedUsers);
+            this.loadUsers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 
