@@ -14,21 +14,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import javafx.util.Pair;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
 
-import java.io.IOException;
 import java.net.URL;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -216,7 +211,9 @@ public class CalendarController {
         // afficher le choix de filtre dans le log console
         System.out.println("Formation : " + textformation);
         FormationFilter.setValue("--par matière--");
-
+        updateDateText();
+        textformation = FormationSwitch.getValue() ;
+        System.out.println("Formation : " + textformation);
         ICalendarReader calendarReader = new ICalendarReader();
         List<biweekly.component.VEvent> events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
         calendarView.setEvents(events);
@@ -266,6 +263,7 @@ public class CalendarController {
                 if (!FormationFilter.isDisabled()) {
                     FormationFilter.setValue("--par matière--");
                     FormationClaAlt.setValue("CLA");
+                    textformation = FormationSwitch.getValue();
                     //todo filtrer une matière par formation : IA, SICOM, ILSEN par exemple pour IA : approches neuronales, prototypage, test
                     events = calendarReader.fetchAndParseCalendarData(textformation+ " " + FormationClaAlt.getValue());
 
