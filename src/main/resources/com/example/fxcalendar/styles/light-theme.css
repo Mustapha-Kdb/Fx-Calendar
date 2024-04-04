@@ -63,5 +63,7 @@ ToggleButton:selected, Button:hover {
     -fx-background-radius: 7px;
     -fx-border-radius: 7px;
     -fx-overflow: hidden;
+    -fx-wrap-text: true;
+    -fx-clip: true;
 
 }

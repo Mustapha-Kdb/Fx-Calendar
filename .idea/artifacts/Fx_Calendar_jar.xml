@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="Fx-Calendar:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/Fx_Calendar_jar</output-path>
-    <root id="archive" name="Fx-Calendar.jar">
+    <root id="root">
       <element id="module-output" name="Fx-Calendar" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/typesafe/config/1.4.1/config-1.4.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jfxtras/jfxtras-common/15-r2/jfxtras-common-15-r2.jar" path-in-jar="/" />

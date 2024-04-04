@@ -28,28 +28,33 @@ public class CalendarApp extends Application {
 
     public void loadLoginView() {
         try {
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginView.fxml"));
             Parent root = loader.load();
             LoginController controller = loader.getController();
             controller.setApp(this);
 
-            // Initialisation de la scène si elle n'existe pas
+
+
+            
             if (scene == null) {
                 scene = new Scene(root);
                 primaryStage.setScene(scene);
             } else {
-                // Si la scène existe déjà, changez simplement sa racine
+                
                 scene.setRoot(root);
             }
 
-            // Réinitialisation de la taille préférée pour la vue de connexion
-            primaryStage.setWidth(400); // Utilisez la largeur préférée pour la vue de connexion
-            primaryStage.setHeight(400); // Utilisez la hauteur préférée pour la vue de connexion
+            primaryStage.setMaximized(false);
+            primaryStage.setResizable(false);
 
-            setTheme(scene, LIGHT_THEME); // Réinitialiser au thème par défaut si nécessaire
+            primaryStage.setWidth(400); 
+            primaryStage.setHeight(400); 
+
+            setTheme(scene, LIGHT_THEME); 
 
             primaryStage.setTitle("Login");
-            primaryStage.centerOnScreen(); // Pour centrer la fenêtre sur l'écran
+            primaryStage.centerOnScreen(); 
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,6 +65,7 @@ public class CalendarApp extends Application {
     public void loadCalendarView(UserModel user) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
+
             Parent root = loader.load();
             loader.<CalendarController>getController().initialize(user);
             loader.<CalendarController>getController().setApp(this);
@@ -68,10 +74,11 @@ public class CalendarApp extends Application {
 
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             scene.setRoot(root);
-            scene.getWindow().setWidth(screenBounds.getWidth());
-            scene.getWindow().setHeight(screenBounds.getHeight());
+            //scene.setMaximized(true);
+            primaryStage.setMaximized(true);
+            primaryStage.setResizable(true);
 
-            setTheme(scene, "DARK".equals(theme) ? DARK_THEME : LIGHT_THEME); // Exemple de basculement basé sur le thème
+            setTheme(scene, "DARK".equals(theme) ? DARK_THEME : LIGHT_THEME); 
 
             primaryStage.setTitle("University Calendar - " + formation);
         } catch (IOException e) {

@@ -13,14 +13,14 @@ import java.util.Scanner;
 public class ICalendarReader {
 
         public List<VEvent> fetchAndParseCalendarData(String filtre) {
-            String urlemploi = getUrlBasedOnFilter(filtre); // Utilisez une méthode pour déterminer l'URL basée sur le filtre
+            String urlemploi = getUrlBasedOnFilter(filtre);
 
             List<VEvent> events = new ArrayList<>();
             try {
                 // Vérifiez si l'URL est valide avant de continuer
                 if (urlemploi == null || urlemploi.isEmpty()) {
                     System.err.println("L'URL est invalide ou manquante pour le filtre: " + filtre);
-                    return events; // Retournez une liste vide ou des données par défaut
+                    return events;
                 }
 
                 URL url = new URL(urlemploi);
@@ -45,8 +45,6 @@ public class ICalendarReader {
 
         private String getUrlBasedOnFilter(String filtre) {
             // Cette méthode retourne l'URL basée sur le filtre donné
-            // Vous devriez inclure ici la logique de votre switch case existant pour déterminer l'URL
-            // Exemple :
             String urlemploi = "";
 
             switch (filtre.toUpperCase()){

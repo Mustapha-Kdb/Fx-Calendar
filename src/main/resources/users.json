@@ -1,4 +1,5 @@
 [ {
+  "id" : "ia",
   "username" : "ia",
   "password" : "a",
   "role" : "Etudiant",
@@ -6,47 +7,36 @@
   "theme" : "LIGHT",
   "events" : [ {
     "id" : "ia",
-    "title" : "exam",
-    "description" : "Examen de Machine Learning Type : PERSONNEL",
-    "date" : "2024-04-03",
-    "location" : "Amphi Ada",
-    "color" : "0x0000ffff",
-    "duration" : "3h 00m",
-    "formation" : "M1 IA",
-    "startHour" : "08:00",
-    "endHour" : "12:00"
-  }, {
-    "id" : "ia",
-    "title" : "ayoub",
-    "description" : "ayoub Type : PERSONNEL",
-    "date" : "2024-04-03",
-    "location" : "add",
+    "title" : "test",
+    "description" : "test Type : PERSONNEL",
+    "date" : "2024-04-04",
+    "location" : "centre ville",
     "color" : "0x0000ffff",
     "duration" : "1h 00m",
     "formation" : "M1 IA",
-    "startHour" : "12:00",
-    "endHour" : "13:00"
+    "startHour" : "08:00",
+    "endHour" : "09:00"
   }, {
     "id" : "ia",
-    "title" : "ayoub",
-    "description" : "ayoub Type : PERSONNEL",
-    "date" : "2024-04-03",
-    "location" : "add",
+    "title" : "test",
+    "description" : "test Type : PERSONNEL",
+    "date" : "2024-04-04",
+    "location" : "ar",
     "color" : "0x0000ffff",
-    "duration" : "",
+    "duration" : "0h 30m",
     "formation" : "M1 IA",
-    "startHour" : "12:00",
-    "endHour" : "14:00"
-  } ],
-  "id" : null
+    "startHour" : "17:00",
+    "endHour" : "17:30"
+  } ]
 }, {
+  "id" : "ilsen",
   "username" : "ilsen",
   "password" : "a",
   "role" : "Etudiant",
   "formation" : "M1 ILSEN",
   "theme" : "LIGHT",
   "events" : [ {
-    "id" : null,
+    "id" : "ilsen",
     "title" : "test event",
     "description" : "test event Type : PERSONNEL",
     "date" : "2024-04-03",
@@ -56,17 +46,17 @@
     "formation" : "M1 ILSEN",
     "startHour" : "08:00",
     "endHour" : "09:00"
-  } ],
-  "id" : null
+  } ]
 }, {
+  "id" : "ilsen",
   "username" : "sicom",
   "password" : "a",
   "role" : "Etudiant",
   "formation" : "M1 SICOM",
   "theme" : "DARK",
-  "events" : [ ],
-  "id" : "ilsen"
+  "events" : [ ]
 }, {
+  "id" : "noe",
   "username" : "noe",
   "password" : "a",
   "role" : "Enseignant",
@@ -94,6 +84,5 @@
     "formation" : "NOE",
     "startHour" : "11:00",
     "endHour" : "12:00"
-  } ],
-  "id" : null
+  } ]
 } ]

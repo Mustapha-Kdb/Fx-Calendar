@@ -15,10 +15,10 @@ public class EventModel {
     private String color;
     private String formation;
 
-    // Constructeur par défaut
+    
     @JsonCreator
     public EventModel(
-        // initialisation optionnelle
+        
         @JsonProperty("id") String id,
         @JsonProperty("title") String title,
         @JsonProperty("description") String description,

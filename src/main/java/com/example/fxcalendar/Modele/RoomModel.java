@@ -27,7 +27,7 @@ public class RoomModel {
         return reservations;
     }
 
-    // Ajoute une réservation si le créneau est libre
+    
     public boolean addReservation(LocalDateTime start, LocalDateTime end, String reservedBy) {
         if (isAvailable(start, end)) {
             reservations.add(new Reservation(start, end, reservedBy));
@@ -36,7 +36,7 @@ public class RoomModel {
         return false;
     }
 
-    // Vérifie si la salle est disponible pour un créneau donné
+    
     public boolean isAvailable(LocalDateTime start, LocalDateTime end) {
         for (Reservation reservation : reservations) {
             if (start.isBefore(reservation.getEnd()) && end.isAfter(reservation.getStart())) {
@@ -50,7 +50,7 @@ public class RoomModel {
         return roomName;
     }
 
-    // Une classe interne pour représenter une réservation
+    
     private static class Reservation {
         private LocalDateTime start;
         private LocalDateTime end;

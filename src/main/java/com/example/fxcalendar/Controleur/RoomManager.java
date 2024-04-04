@@ -8,17 +8,16 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RoomManager {
-    // Cette classe gère les réservations de salles
+    
     private Map<String, RoomModel> rooms = new HashMap<>();
     private ICalendarReader calendarReader = new ICalendarReader();
 
 
     public RoomManager() {
         this.rooms = new HashMap<>();
-        // recuperer les salles de l'emploi du temps et les ajouter à la liste des salles
+        
         List<VEvent> eventsSTAT1 = calendarReader.fetchAndParseCalendarData("STAT 1");
         List<VEvent> eventsS2 = calendarReader.fetchAndParseCalendarData("S2");
         List<VEvent> eventsS3 = calendarReader.fetchAndParseCalendarData("S3");
@@ -30,13 +29,13 @@ public class RoomManager {
     }
 
 
-    // Vérifie si une salle est disponible pour un créneau donné
+    
     public boolean isRoomAvailable(String roomName, LocalDateTime start, LocalDateTime end) {
         RoomModel room = rooms.get(roomName);
         return room != null && room.isAvailable(start, end);
     }
 
-    // Tente de réserver une salle pour un créneau donné
+    
     public boolean bookRoom(String roomName, LocalDateTime start, LocalDateTime end, String reservedBy) {
         RoomModel room = rooms.get(roomName);
         if (room != null) {
