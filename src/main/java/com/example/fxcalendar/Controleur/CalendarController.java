@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CalendarController {
+    @FXML
+    public Button reserverSalle;
     private CalendarApp app;
 
     private UserModel user;
@@ -123,6 +125,10 @@ public class CalendarController {
 
         public void initialize(UserModel user) {
             this.user = user;
+            if(user.getRole().toLowerCase().equals("etudiant")){
+                reserverSalle.setVisible(false);
+            }
+
             textformation = user.getFormation();
             String formation = textformation;
             isLightTheme = user.getTheme().equals("LIGHT");
@@ -697,4 +703,131 @@ public class CalendarController {
     }
 
 
-}
+    @FXML
+    public void handleReserverSalle(ActionEvent actionEvent) {
+        // Supposons que roomManager est correctement initialisé et contient les méthodes nécessaires
+        RoomManager roomManager = new RoomManager();
+
+        Dialog<Pair<String, LocalDate>> dialog = new Dialog<>();
+        dialog.setTitle("Réservation de Salle");
+        dialog.setHeaderText("Saisissez les détails de la réservation");
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField titleField = new TextField();
+        titleField.setPromptText("Description de l'événement");
+        DatePicker datePicker = new DatePicker(LocalDate.now());
+        TextField startTimeField = new TextField();
+        startTimeField.setPromptText("Heure de début (HH:mm)");
+        TextField endTimeField = new TextField();
+        endTimeField.setPromptText("Heure de fin (HH:mm)");
+
+        ComboBox<String> roomSelection = new ComboBox<>();
+        roomSelection.setPromptText("Sélectionnez une salle");
+        roomSelection.setItems(FXCollections.observableArrayList("STAT 1", "S2", "S3"));
+
+        ColorPicker colorPicker = new ColorPicker(Color.BLUE);
+
+        grid.add(new Label("Titre:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Label("Date:"), 0, 1);
+        grid.add(datePicker, 1, 1);
+        grid.add(new Label("Heure de début:"), 0, 2);
+        grid.add(startTimeField, 1, 2);
+        grid.add(new Label("Heure de fin:"), 0, 3);
+        grid.add(endTimeField, 1, 3);
+        grid.add(new Label("Salle:"), 0, 4);
+        grid.add(roomSelection, 1, 4);
+        grid.add(new Label("Couleur:"), 0, 5);
+        grid.add(colorPicker, 1, 5);
+
+        dialog.getDialogPane().setContent(grid);
+        Platform.runLater(titleField::requestFocus);
+
+        dialog.setResultConverter(dialogButton -> dialogButton == ButtonType.OK ? new Pair<>(titleField.getText(), datePicker.getValue()) : null);
+
+        Optional<Pair<String, LocalDate>> result = dialog.showAndWait();
+        result.ifPresent(eventDetails -> {
+            String description = eventDetails.getKey();
+            LocalDate date = eventDetails.getValue();
+            String roomName = roomSelection.getValue();
+            // Définir un formateur pour les heures au format "H:mm"
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H:mm");
+
+            // Utiliser le formateur pour parser les heures
+            LocalTime startTime = LocalTime.parse(startTimeField.getText(), timeFormatter);
+            LocalTime endTime = LocalTime.parse(endTimeField.getText(), timeFormatter);
+            String location = roomName;
+            Color color = colorPicker.getValue();
+            // Convertir la date et les heures en LocalDateTime
+            LocalDateTime eventStart = LocalDateTime.of(date, startTime);
+            LocalDateTime eventEnd = LocalDateTime.of(date, endTime);
+
+            // Calculer la durée
+            Duration duration = Duration.between(startTime, endTime);
+            // Convertir en un format de durée lisible, par exemple, heures et minutes
+            long hours = duration.toHours();
+            long minutes = duration.minusHours(hours).toMinutes();
+            String durationStr = String.format("%dh %02dm", hours, minutes);
+
+            if (roomManager.isRoomAvailable(roomName, eventStart, eventEnd) && user.isUserFree(user, eventStart, eventEnd,eventStart, eventEnd,date)) {
+                if (roomManager.bookRoom(roomName, eventStart, eventEnd, description)) {
+                    // Création de l'événement VEvent
+                    VEvent vEvent = new VEvent();
+                    vEvent.setDescription(description);
+                    DateTime startDateTime = new DateTime(Date.from(date.atTime(startTime).atZone(ZoneId.systemDefault()).toInstant()));
+                    vEvent.setDateStart(new DateStart(startDateTime));
+
+                    DateTime endDateTime = new DateTime(Date.from(date.atTime(endTime).atZone(ZoneId.systemDefault()).toInstant()));
+                    vEvent.setDateEnd(new DateEnd(endDateTime));
+
+                    // Configurer la propriété 'Created' et 'LastModified'
+                    Date now = new Date(); // La date actuelle
+                    vEvent.setCreated(now);
+                    vEvent.setLastModified(now);
+
+                    vEvent.setLocation(location);
+                    vEvent.setColor(color.toString());
+
+                    // Création de l'objet EventModel avec la durée calculée
+                    EventModel eventModel = new EventModel(user.getUsername(),description, description+" Type : PERSONNEL", date.toString(), startTime.toString(), endTime.toString(), location, color.toString(), durationStr, user.getFormation());
+
+                    // Ajout de l'événement à la vue de calendrier
+                    calendarView.addEvent(vEvent);
+                    this.user.addEvent(eventModel);
+                    // Mettre à jour l'affichage du calendrier si la formation courrante est la même
+                    if (textformation.equals(user.getFormation())) {
+                        updateCalendarView();
+                    }
+
+                    // Mettez à jour le fichier JSON pour enregistrer les modifications
+                    UserController userController = new UserController();
+                    userController.addEventToUser(this.user.getUsername(), vEvent);
+
+                    // Enregistrer les modifications dans le fichier users.json
+                    userController.updateUser(this.user);
+
+                    // Ici, vous pouvez implémenter la logique pour ajouter l'événement au calendrier du professeur
+                    System.out.println("La salle a été réservée avec succès et le professeur est libre.");
+                } else {
+                    // Échec de la réservation
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Erreur de Réservation");
+                    alert.setHeaderText("Impossible de réserver la salle");
+                    alert.showAndWait();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Réservation Impossible");
+                alert.setHeaderText("La salle sélectionnée n'est pas disponible ou le professeur n'est pas libre.");
+                alert.setContentText("Veuillez choisir un autre créneau horaire, une autre salle, ou vérifier la disponibilité du professeur.");
+                alert.showAndWait();
+            }
+        });
+    }
+
+    }

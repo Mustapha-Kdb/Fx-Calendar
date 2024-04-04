@@ -83,6 +83,17 @@
     "formation" : "NOE",
     "startHour" : "15:00",
     "endHour" : "16:00"
+  }, {
+    "id" : "noe",
+    "title" : "essai reservation",
+    "description" : "essai reservation Type : PERSONNEL",
+    "date" : "2024-02-04",
+    "location" : "STAT 1",
+    "color" : "0xff00ffff",
+    "duration" : "1h 00m",
+    "formation" : "NOE",
+    "startHour" : "11:00",
+    "endHour" : "12:00"
   } ],
   "id" : null
 } ]
