@@ -100,6 +100,35 @@ public class UserController {
             e.printStackTrace();
         }
     }
+    public void addEventToUser(String username, EventModel eventModel) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Activer la mise en forme
+        File file = new File("src/main/resources/users.json");
+
+        try {
+            // Charger la liste actuelle des utilisateurs
+            List<UserModel> users = objectMapper.readValue(file, new TypeReference<List<UserModel>>() {
+            });
+            UserModel user = users.stream().filter(u -> u.getUsername().equals(username)).findFirst().orElse(null);
+
+            if (user != null) {
+                // Convertir VEvent en un format approprié pour le JSON (par exemple, EventModel ou un Map)
+                user.getEvents().add(eventModel);
+
+                // Ajouter l'événement à l'utilisateur
+                user.addEvent(eventModel);
+                List<UserModel> allUsers = getAllUsers();
+
+                saveUsers(allUsers);
+
+                // Sauvegarder la liste mise à jour des utilisateurs dans le fichier JSON
+                objectMapper.writeValue(file, users);
+                System.out.println(this + "Successfully added event to user.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private List<UserModel> getAllUsers() {
         try {
@@ -164,6 +193,8 @@ public class UserController {
                             event.getDate().equals(eventToRemove.getDate()) &&
                             event.getStartHour().equals(eventToRemove.getStartHour())
             );
+
+            System.out.println("L'événement "+ eventToRemove.getTitle() +" a été supprimé avec succès.");
             // Ensuite, sauvegarder les utilisateurs mis à jour dans le fichier JSON comme avant
             saveUsers(users);
         }
@@ -181,27 +212,6 @@ public class UserController {
     }
 
 
-    public void updateEventForUser(String username, EventModel eventToUpdate) {
-        UserModel user = findUserByUsername(username);
-
-        if (user != null) {
-            for (EventModel event : user.getEvents()) {
-                if (event.getId().equals(eventToUpdate.getId())) { // Supposer que chaque événement a un champ 'id'
-                    event.setTitle(eventToUpdate.getTitle());
-                    event.setDescription(eventToUpdate.getDescription());
-                    event.setLocation(eventToUpdate.getLocation());
-                    event.setColor(eventToUpdate.getColor());
-                    event.setEndHour(eventToUpdate.getEndHour());
-                    event.setStartHour(eventToUpdate.getStartHour());
-                    event.setDate(eventToUpdate.getDate());
-
-                    break;
-                }
-            }
-            // Ensuite, sauvegarder les utilisateurs mis à jour dans le fichier JSON comme avant
-            saveUsers(users);
-        }
-    }
 
 
 }

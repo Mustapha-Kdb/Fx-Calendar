@@ -468,7 +468,7 @@ public class CalendarController {
 
             System.out.println("Description: " + description + ", Date: " + date + ", Début: " + startTime + ", Fin: " + endTime + ", Lieu: " + location + ", Couleur: " + color + ", Durée: " + durationStr);
             // Vérifier si l'utilisateur est libre
-            if (user.isUserFree(user, eventStart, eventEnd,date)) {
+            if (user.isUserFree(user, eventStart, eventEnd,eventStart, eventEnd,date)) {
             // Création de l'événement VEvent
             VEvent vEvent = new VEvent();
             vEvent.setDescription(description);
@@ -607,6 +607,10 @@ public class CalendarController {
         TextField endTimeField = new TextField(eventModel.getEndHour());
         TextField locationField = new TextField(eventModel.getLocation());
         ColorPicker colorPicker = new ColorPicker(Color.valueOf(eventModel.getColor()));
+        LocalDateTime eventStartOld;
+        LocalDateTime eventEndOld;
+        eventStartOld = LocalDateTime.of(LocalDate.parse(eventModel.getDate()), LocalTime.parse(eventModel.getStartHour()));
+        eventEndOld = LocalDateTime.of(LocalDate.parse(eventModel.getDate()), LocalTime.parse(eventModel.getEndHour()));
 
         grid.add(new Label("Titre:"), 0, 0);
         grid.add(titleField, 1, 0);
@@ -637,10 +641,60 @@ public class CalendarController {
 
         // Mise à jour de l'événement avec les nouvelles valeurs saisies par l'utilisateur
         result.ifPresent(newEventModel -> {
-            UserController userController = new UserController();
-            userController.updateEventForUser(this.user.getUsername(), newEventModel);
-            // Mettre à jour l'affichage du calendrier
-            updateCalendarView();
+            LocalDate date = LocalDate.parse(newEventModel.getDate());
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H:mm");
+
+            LocalTime startTime = LocalTime.parse(startTimeField.getText(), timeFormatter);
+            LocalTime endTime = LocalTime.parse(endTimeField.getText(), timeFormatter);
+
+            LocalDateTime eventStart = LocalDateTime.of(date, startTime);
+            LocalDateTime eventEnd = LocalDateTime.of(date, endTime);
+            System.out.println("tester Description: " + newEventModel.getDescription() + ", Date: " + date + ", Début: " + startTime + ", Fin: " + endTime + ", Lieu: " + newEventModel.getLocation() + ", Couleur: " + newEventModel.getColor());
+            if (user.isUserFree(user, eventStart, eventEnd,eventStartOld, eventEndOld,date)) {
+                this.user.getEvents().remove(newEventModel);
+
+                // Mettre à jour le fichier JSON ou la base de données, si nécessaire
+                UserController userController = new UserController();
+                userController.deleteEventFromUser(this.user.getUsername(), newEventModel);
+
+                VEvent vEvent = new VEvent();
+                vEvent.setDescription(newEventModel.getDescription());
+                DateTime startDateTime = new DateTime(Date.from(date.atTime(startTime).atZone(ZoneId.systemDefault()).toInstant()));
+                vEvent.setDateStart(new DateStart(startDateTime));
+
+                DateTime endDateTime = new DateTime(Date.from(date.atTime(endTime).atZone(ZoneId.systemDefault()).toInstant()));
+                vEvent.setDateEnd(new DateEnd(endDateTime));
+
+                // Configurer la propriété 'Created' et 'LastModified'
+                Date now = new Date(); // La date actuelle
+                vEvent.setCreated(now);
+                vEvent.setLastModified(now);
+
+                vEvent.setLocation(newEventModel.getLocation());
+                vEvent.setColor(newEventModel.getColor());
+
+                // Ajout de l'événement à la vue de calendrier
+                calendarView.addEvent(vEvent);
+                this.user.addEvent(newEventModel);
+                // Mettre à jour l'affichage du calendrier si la formation courrante est la même
+                updateCalendarView();
+
+
+                // Mettez à jour le fichier JSON pour enregistrer les modifications
+                userController.addEventToUser(this.user.getUsername(), newEventModel);
+
+                // Enregistrer les modifications dans le fichier users.json
+                userController.updateUser(this.user);
+
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("l'"+user.getRole()+" "+user.getUsername()+" n'est pas disponible");
+                alert.setContentText("vous avez déjà un événement prévu pour cette période. Veuillez choisir une autre date ou heure.");
+                alert.showAndWait();
+            }
+
         });
     }
 

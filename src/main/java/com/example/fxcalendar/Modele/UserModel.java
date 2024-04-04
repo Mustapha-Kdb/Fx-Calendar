@@ -155,7 +155,7 @@ public class UserModel {
 
     }
 
-    public boolean isUserFree(UserModel user, LocalDateTime eventStart, LocalDateTime eventEnd, LocalDate day) {
+    public boolean isUserFree(UserModel user, LocalDateTime eventStart, LocalDateTime eventEnd, LocalDateTime eventStartOld, LocalDateTime eventEndOld,LocalDate day) {
         for (EventModel event : user.getAllEventsDay(day)) {
             // Assume that event.getStartHour() and event.getEndHour() return times in the format "HH:mm"
             LocalTime eventStartTime = LocalTime.parse(event.getStartHour());
@@ -168,7 +168,12 @@ public class UserModel {
             LocalDateTime eventStartDateTime = LocalDateTime.of(eventDate, eventStartTime);
             LocalDateTime eventEndDateTime = LocalDateTime.of(eventDate, eventEndTime);
 
-            if (eventStartDateTime.isBefore(eventEnd) && eventEndDateTime.isAfter(eventStart)) {
+
+
+            if (eventStartDateTime.isBefore(eventEnd) && eventEndDateTime.isAfter(eventStart)
+            && !eventStartDateTime.isEqual(eventStartOld) && !eventEndDateTime.isEqual(eventEndOld)
+            ) {
+                System.out.println("t'as un cours de " + event.getTitle() + " à cette heure là");
                 return false;
             }
         }
