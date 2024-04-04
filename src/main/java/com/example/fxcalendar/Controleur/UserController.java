@@ -110,7 +110,6 @@ public class UserController {
         File file = new File("src/main/resources/users.json");
 
         try {
-            
             List<UserModel> users = objectMapper.readValue(file, new TypeReference<List<UserModel>>() {
             });
             UserModel user = users.stream().filter(u -> u.getUsername().equals(username)).findFirst().orElse(null);
@@ -177,11 +176,6 @@ public class UserController {
         if (vEvent.getLocation() != null && vEvent.getLocation().getValue() != null) {
             location = vEvent.getLocation().getValue();
         }
-
-
-        
-        
-
         return new EventModel(user.getUsername(), title, description, date, startHour, endHour, location, color, duration, formation);
     }
 

@@ -7,26 +7,15 @@
   "theme" : "LIGHT",
   "events" : [ {
     "id" : "ia",
-    "title" : "test",
-    "description" : "test Type : PERSONNEL",
+    "title" : "rdv medecin",
+    "description" : "rdv medecin Type : PERSONNEL",
     "date" : "2024-04-04",
     "location" : "centre ville",
-    "color" : "0x0000ffff",
+    "color" : "0xffff00ff",
     "duration" : "1h 00m",
     "formation" : "M1 IA",
     "startHour" : "08:00",
     "endHour" : "09:00"
-  }, {
-    "id" : "ia",
-    "title" : "test",
-    "description" : "test Type : PERSONNEL",
-    "date" : "2024-04-04",
-    "location" : "ar",
-    "color" : "0x0000ffff",
-    "duration" : "0h 30m",
-    "formation" : "M1 IA",
-    "startHour" : "17:00",
-    "endHour" : "17:30"
   } ]
 }, {
   "id" : "ilsen",
@@ -61,7 +50,7 @@
   "password" : "a",
   "role" : "Enseignant",
   "formation" : "NOE",
-  "theme" : "LIGHT",
+  "theme" : "DARK",
   "events" : [ {
     "id" : "noe",
     "title" : "reservation",

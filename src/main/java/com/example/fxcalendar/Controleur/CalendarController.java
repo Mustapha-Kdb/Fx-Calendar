@@ -192,15 +192,9 @@ public class CalendarController {
         
 
         for (EventModel event : filteredEvents) {
-            
                 calendarView.addEventToCalendarView(event);
         }
     }
-
-
-
-
-
     private void handleFormationClaAltSelection() {
         
         textformation = FormationSwitch.getValue() ;
@@ -217,10 +211,10 @@ public class CalendarController {
     }
 
     private void handleFormationFiltreSelection() {
-            
+
             textformation = FormationFilter.getValue();
 
-            
+
             if (!textformation.equals("--par matière--")) {
 
                 updateDateText();
@@ -233,7 +227,7 @@ public class CalendarController {
         }
 
         private void handleFormationSelection() {
-            
+
             textformation = FormationSwitch.getValue();
 
             boolean isFormation = textformation.equals("M1 IA") || textformation.equals("M1 SICOM") || textformation.equals("M1 ILSEN");
@@ -242,9 +236,6 @@ public class CalendarController {
             if (!FormationClaAlt.isDisabled()) {
                 FormationClaAlt.setValue("CLA");
             }
-            
-
-            
             if (!textformation.equals("--par formation--") &&
                     !textformation.equals("--par prof--") &&
                     !textformation.equals("--par salle--")
@@ -288,9 +279,14 @@ public class CalendarController {
 
     private void setupNavigationButtons() {
         previousButton.setOnAction(this::handlePreviousButton);
+
         nextButton.setOnAction(this::handleNextButton);
+
         ThemeButton.setOnAction(this::toggleTheme);
+
     }
+
+
 
     @FXML
     private void handlePreviousButton(ActionEvent actionEvent) {
@@ -569,7 +565,6 @@ public class CalendarController {
         
         this.user.getEvents().remove(eventModel);
 
-        
         UserController userController = new UserController();
         userController.deleteEventFromUser(this.user.getUsername(), eventModel);
 

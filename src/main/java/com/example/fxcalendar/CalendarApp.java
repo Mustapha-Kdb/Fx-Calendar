@@ -5,10 +5,8 @@ import com.example.fxcalendar.Controleur.LoginController;
 import com.example.fxcalendar.Modele.UserModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -64,17 +62,16 @@ public class CalendarApp extends Application {
 
     public void loadCalendarView(UserModel user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("CalendarView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("calendarview.fxml"));
 
             Parent root = loader.load();
-            loader.<CalendarController>getController().initialize(user);
-            loader.<CalendarController>getController().setApp(this);
+            CalendarController controller = loader.getController();
+            controller.initialize(user);
+            controller.setApp(this);
             String theme=user.getTheme();
             String formation=user.getFormation();
 
-            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             scene.setRoot(root);
-            //scene.setMaximized(true);
             primaryStage.setMaximized(true);
             primaryStage.setResizable(true);
 
